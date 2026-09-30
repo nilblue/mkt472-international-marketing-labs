@@ -68,8 +68,9 @@ function page(cfg){
   const root = clear(document.body);
   const prev = LECTURES.find(x=>x.n===L.n-1), next = LECTURES.find(x=>x.n===L.n+1);
   root.append(
+    h('div',{class:'brandstrip'}),
     h('header',{class:'top'}, h('div',{class:'wrap'},
-      h('a',{class:'brand',href:'../index.html'},'MKT472 Labs ',h('span',null,'· International Marketing')),
+      brandBlock('../'),
       h('div',{class:'navlinks'},
         prev && h('a',{class:'btn',href:`L${pad(prev.n)}.html`},'← L'+prev.n),
         h('a',{class:'btn',href:'../index.html'},'All labs'),
@@ -94,11 +95,26 @@ function page(cfg){
       h('div',{class:'pager'},
         prev ? h('a',{class:'btn',href:`L${pad(prev.n)}.html`},'← '+prev.app) : h('span'),
         next ? h('a',{class:'btn',href:`L${pad(next.n)}.html`},next.app+' →') : h('span')
-      )
+      ),
+      h('p',{class:'small muted datanote'},'MKT472 International Marketing. '+DATA_NOTE)
     ),
-    h('footer',null,h('div',{class:'wrap'},'MKT472 International Marketing · Department of Management Sciences, COMSATS University Islamabad, Wah Campus · Instructor: Abid Naeem. Figures in these labs are simplified or illustrative for teaching; verify real-world data before using it in assignments.'))
+    footerBlock('../')
   );
   return Lab.app;
+}
+
+
+const ORG = {uni:'COMSATS University Islamabad, Wah Campus', dept:'Management Sciences Department', credit:'Made by Abid Naeem'};
+const DATA_NOTE='Figures in these labs are simplified or illustrative for teaching; verify real-world data before using it in assignments.';
+function brandBlock(base){
+  return h('a',{class:'brand',href:base+'index.html','aria-label':ORG.uni+' — MKT472 Labs home'},
+    h('img',{src:base+'assets/cui-logo.png',alt:'COMSATS University Islamabad logo',width:52,height:52}),
+    h('span',{class:'b1'},ORG.uni));
+}
+function footerBlock(base){
+  return h('footer',null,h('div',{class:'wrap fbrand'},
+    h('img',{src:base+'assets/cui-logo.png',alt:'',width:36,height:36}),
+    h('span',null,h('b',null,ORG.dept+'.'),' '+ORG.credit+'.')));
 }
 
 function card(title, ...kids){ return h('div',{class:'card'}, title && h('h2',null,title), ...kids); }
@@ -273,5 +289,5 @@ function tabs(el, defs){ // [{label, build(container)}]
   body.append(...panes); el.append(bar,body); show(0);
 }
 
-window.Lab = {LECTURES,WEEKS,CLO,h,s,clear,markup,pad,fmt,money,pct,clamp,shuffle,page,card,slider,numInput,selectBox,stat,fb,cssVar,bars,radar,line,legend,quiz,classify,sequence,scenarios,weighted,tabs};
+window.Lab = {ORG,brandBlock,footerBlock,LECTURES,WEEKS,CLO,h,s,clear,markup,pad,fmt,money,pct,clamp,shuffle,page,card,slider,numInput,selectBox,stat,fb,cssVar,bars,radar,line,legend,quiz,classify,sequence,scenarios,weighted,tabs};
 })();

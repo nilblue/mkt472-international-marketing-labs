@@ -1,25 +1,25 @@
 :root{
   --bg:#f6f7fb; --surface:#ffffff; --surface2:#eef1f7; --text:#1b2333; --muted:#5b6578;
-  --border:#d9dee8; --accent:#1f4e9c; --accent-soft:#e3ebf8; --accent2:#c9772b;
+  --border:#d9dee8; --accent:#115ea5; --accent-soft:#e2edf8; --accent2:#4a267e; --brand-blue:#115ea5; --brand-purple:#4a267e;
   --good:#1e7d4f; --good-soft:#e2f3ea; --bad:#b3372f; --bad-soft:#f9e4e2; --warn:#a56a00; --warn-soft:#fbf0d9;
-  --c1:#1f4e9c; --c2:#c9772b; --c3:#2e8a6e; --c4:#8a4fb3; --c5:#b3372f; --c6:#5b6578;
+  --c1:#115ea5; --c2:#c9772b; --c3:#2e8a6e; --c4:#4a267e; --c5:#b3372f; --c6:#5b6578;
   --radius:12px; --shadow:0 1px 2px rgba(20,30,50,.06),0 4px 14px rgba(20,30,50,.05);
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
     --bg:#11151d; --surface:#1a202b; --surface2:#232b38; --text:#e7ebf2; --muted:#9aa4b6;
-    --border:#313a4a; --accent:#7fa8ec; --accent-soft:#1f2c44; --accent2:#e6a061;
+    --border:#313a4a; --accent:#6fa8e0; --accent-soft:#16283d; --accent2:#b79ae0; --brand-blue:#115ea5; --brand-purple:#4a267e;
     --good:#5ccb94; --good-soft:#173327; --bad:#f08a80; --bad-soft:#3a1f1d; --warn:#e7b85a; --warn-soft:#3a2f16;
-    --c1:#7fa8ec; --c2:#e6a061; --c3:#5cc4a3; --c4:#bb8ee0; --c5:#f08a80; --c6:#9aa4b6;
+    --c1:#6fa8e0; --c2:#e6a061; --c3:#5cc4a3; --c4:#b79ae0; --c5:#f08a80; --c6:#9aa4b6;
     --shadow:none; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
     --bg:#11151d; --surface:#1a202b; --surface2:#232b38; --text:#e7ebf2; --muted:#9aa4b6;
-    --border:#313a4a; --accent:#7fa8ec; --accent-soft:#1f2c44; --accent2:#e6a061;
+    --border:#313a4a; --accent:#6fa8e0; --accent-soft:#16283d; --accent2:#b79ae0; --brand-blue:#115ea5; --brand-purple:#4a267e;
     --good:#5ccb94; --good-soft:#173327; --bad:#f08a80; --bad-soft:#3a1f1d; --warn:#e7b85a; --warn-soft:#3a2f16;
-    --c1:#7fa8ec; --c2:#e6a061; --c3:#5cc4a3; --c4:#bb8ee0; --c5:#f08a80; --c6:#9aa4b6;
+    --c1:#6fa8e0; --c2:#e6a061; --c3:#5cc4a3; --c4:#b79ae0; --c5:#f08a80; --c6:#9aa4b6;
     --shadow:none; color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -105,3 +105,19 @@ svg text{fill:var(--text);font-family:inherit}
 .weekhead{margin:28px 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 .search{max-width:420px}
 @media (max-width:600px){.card{padding:16px}}
+
+/* ---- COMSATS University Islamabad, Wah Campus branding ----
+   Official colours taken from the CUI logo: purple #4A267E, blue #115EA5, white. */
+.brandstrip{height:6px;background:linear-gradient(90deg,var(--brand-purple) 0 50%,var(--brand-blue) 50% 100%)}
+header.top{background:var(--brand-purple);border-bottom:4px solid var(--brand-blue)}
+header.top .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.45)}
+header.top .btn:hover{background:rgba(255,255,255,.12);border-color:#fff}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff;min-width:0}
+.brand img{width:52px;height:52px;flex:none;background:#fff;border-radius:50%}
+.brand .b1{font-weight:800;font-size:18px;color:#fff;letter-spacing:.01em;line-height:1.25}
+footer{background:var(--brand-blue);color:#fff;padding:14px 0;margin-top:24px}
+footer .fbrand{display:flex;gap:10px;align-items:center;font-size:14px}
+footer .fbrand img{width:36px;height:36px;flex:none;background:#fff;border-radius:50%}
+footer b{color:#fff}
+.datanote{margin:8px 0 0}
+@media (max-width:600px){.brand img{width:42px;height:42px}.brand .b1{font-size:15px}}
