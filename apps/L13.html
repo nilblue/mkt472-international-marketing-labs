@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,fb,fmt,clear,bars,tabs,classify,stat}=Lab;
+const app=page({n:13,
+  primer:[
+   "<b>Global market segmentation</b> identifies specific segments — country groups or individual consumer groups — of potential customers with homogeneous attributes who are likely to respond similarly to a marketing mix.",
+   "Bases: <b>demographic</b> (income, age, gender, education, population), <b>psychographic</b> (values, attitudes, lifestyles), <b>behavioural</b> (usage rate, user status, occasions), <b>benefit</b> (the value or benefit sought) and <b>ethnic</b> (shared heritage — e.g. the Pakistani diaspora in the UK and Gulf).",
+   "Global segments cut across borders: <b>global teens</b>, the <b>global elite</b>, and diaspora segments can be targeted with similar offers in many countries.",
+   "Segment size estimates multiply population by the share meeting each criterion — the simulator assumes criteria are independent, which real data often violate."
+  ],
+  discussion:["Describe one ethnic segment that Pakistani brands can target abroad. How big is it, and what does it want?","Is the ‘global teen’ segment real, or do local cultures still dominate teen buying?","Why is income alone a poor way to segment emerging markets?"]
+});
+// Illustrative round figures for teaching only
+const C={ 'Pakistan':{pop:240,young:.28,urban:.38,online:.45,mid:.25},'Bangladesh':{pop:173,young:.27,urban:.40,online:.45,mid:.22},'Egypt':{pop:112,young:.25,urban:.43,online:.72,mid:.30},'Indonesia':{pop:280,young:.24,urban:.58,online:.69,mid:.45},'UAE':{pop:10,young:.22,urban:.87,online:.99,mid:.75},'United Kingdom':{pop:68,young:.18,urban:.84,online:.96,mid:.80}};
+tabs(app,[
+ {label:'1 · Segment builder', build(el){ const c=card('Build a cross-border segment for a new mobile-first fashion app'); const chart=h('div'), out=h('div');
+  const F=[['young','Aged 15–29'],['urban','Lives in urban areas'],['online','Uses the internet'],['mid','Middle-class or higher income']];
+  const boxes=F.map(([k,l])=>h('label',{class:'row',style:{margin:'6px 0'}},h('input',{type:'checkbox',checked:k!=='mid',onchange:calc,'data-k':k}),l));
+  const cbox=Object.keys(C).map(n=>h('label',{class:'chip',style:{display:'inline-flex',gap:'6px'}},h('input',{type:'checkbox',checked:true,onchange:calc,'data-c':n}),n));
+  const tot=stat('Total segment size');
+  c.append(h('div',{class:'grid2'},h('div',null,h('h3',null,'Segmentation criteria'),boxes,h('h3',{style:{marginTop:'12px'}},'Countries'),h('div',null,cbox)),h('div',null,tot,chart,out)),h('p',{class:'small muted'},'Figures are rounded, illustrative values for classroom use; replace them with current World Bank / ITU / national statistics for an assignment.')); el.append(c);
+  function calc(){ const ks=[...c.querySelectorAll('input[data-k]:checked')].map(i=>i.dataset.k), cs=[...c.querySelectorAll('input[data-c]:checked')].map(i=>i.dataset.c);
+    const data=cs.map(n=>({label:n,value:ks.reduce((a,k)=>a*C[n][k],C[n].pop)})).sort((a,b)=>b.value-a.value);
+    const total=data.reduce((a,d)=>a+d.value,0); tot.set(fmt(total,1)+' million');
+    bars(chart,data,{fmt:v=>fmt(v,1)+'m'}); clear(out);
+    if(!data.length){out.append(fb('warn','Select at least one country.'));return;}
+    const perCap=data.map(d=>({n:d.label,sh:d.value/C[d.label].pop})).sort((a,b)=>b.sh-a.sh);
+    out.append(fb('info',`The biggest segment is in <b>${data[0].label}</b> (${fmt(data[0].value,1)}m people), but the segment is densest in <b>${perCap[0].n}</b> (${fmt(perCap[0].sh*100)}% of the population). Big-but-thin markets need broad, low-cost reach; small-but-dense markets can be served with premium, targeted campaigns.`));
+  }
+  calc();
+ }},
+ {label:'2 · Which base?', build(el){ const c=card('Match the segmentation variable to its base'); el.append(c);
+  classify(c,{bins:['Demographic','Psychographic','Behavioural','Benefit','Ethnic'],items:[
+   {text:'Household income above $10,000',bin:0,why:'Income is demographic.'},{text:'Age 13–19',bin:0,why:'Age is demographic.'},{text:'Urban vs rural',bin:0,why:'Geographic/demographic descriptor.'},
+   {text:'Values adventure and self-expression',bin:1,why:'Values and lifestyle = psychographic.'},{text:'Eco-conscious lifestyle',bin:1,why:'Attitudes and lifestyle.'},
+   {text:'Heavy users (buy weekly)',bin:2,why:'Usage rate.'},{text:'First-time buyers',bin:2,why:'User status.'},{text:'Buys only during Eid',bin:2,why:'Purchase occasion.'},
+   {text:'Wants whitening toothpaste',bin:3,why:'The benefit sought.'},{text:'Seeks lowest price',bin:3,why:'Economy benefit.'},
+   {text:'British Pakistanis in Bradford',bin:4,why:'Shared ethnic heritage across borders.'},{text:'Hispanic consumers in the USA',bin:4,why:'Classic ethnic segment.'}
+  ]});
+ }}
+]);
+</script></body></html>

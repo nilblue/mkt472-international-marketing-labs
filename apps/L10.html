@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,fb,clear,tabs,scenarios,classify}=Lab;
+const app=page({n:10,
+  primer:[
+   "<b>Intellectual property (IP)</b> — patents, trademarks, copyrights and trade secrets — is territorial: protection must be secured country by country. Key treaties: the <b>Paris Convention</b> (priority right), the <b>Patent Cooperation Treaty (PCT)</b>, the <b>Madrid System</b> for trademarks, and the WTO’s <b>TRIPS</b> agreement.",
+   "<b>First-to-file</b> countries give trademark rights to whoever registers first (most of the world, including China); <b>first-to-use</b> systems (historically the USA) weigh actual use. Register early in target markets.",
+   "<b>Bribery</b>: the US <b>Foreign Corrupt Practices Act (FCPA)</b> bans bribing foreign officials but has a narrow exception for routine ‘facilitating payments’; the <b>UK Bribery Act 2010</b> has no such exception and also covers private-sector bribery. The <b>OECD Anti-Bribery Convention</b> commits signatories to similar laws.",
+   "<b>Conflict resolution</b> options run from <b>conciliation/mediation</b> (non-binding, friendly) to <b>arbitration</b> (binding, private — ICC, LCIA, ICSID; awards enforced under the <b>New York Convention</b>) to <b>litigation</b> in national courts (slow, public, jurisdiction problems).",
+   "The <b>regulatory environment</b> includes national agencies and regional rules — e.g. EU product standards and GDPR on customer data — that exporters must meet."
+  ],
+  discussion:["Why do many experts recommend arbitration clauses in international sales contracts?","Is a small ‘speed payment’ to clear customs ever acceptable? Argue both sides, then state the legal position.","Which markets should a Pakistani fashion brand register its trademark in before exporting, and why early?"]
+});
+tabs(app,[
+ {label:'1 · Legal dilemmas game', build(el){ const c=card('You are marketing director of “Indus Threads”, a Pakistani apparel brand going global'); el.append(c);
+  scenarios(c,{start:'n1',meters:[{key:'legal',label:'Legal compliance',init:60},{key:'rep',label:'Reputation',init:60},{key:'profit',label:'Profit',init:50}],
+   nodes:{
+    n1:{title:'Trademark',text:'You plan to launch in China and the Gulf next year. Registering the brand in 6 markets through the Madrid System will cost about US$8,000.',choices:[
+      {label:'Register now in all target markets via the Madrid System.',effects:{legal:15,profit:-5},tone:'good',result:'Smart. Most countries are <b>first-to-file</b>; early registration stops “trademark squatters” from registering your name first.',next:'n2'},
+      {label:'Wait until sales start — save the cash.',effects:{legal:-20,profit:-15,rep:-5},tone:'bad',result:'Six months later a local trader registers “Indus Threads” in China and demands US$150,000 to sell it back. First-to-file rules favour him.',next:'n2'}]},
+    n2:{title:'Counterfeits',text:'Fake Indus Threads shirts appear on a large online marketplace abroad.',choices:[
+      {label:'Use the platform’s IP-complaint process with your registration certificates, and brief customs to record your mark.',effects:{legal:10,rep:10},tone:'good',result:'Listings are removed; customs recordation helps seize fakes at the border. Registered rights are what make enforcement possible.',next:'n3'},
+      {label:'Post an angry video accusing the country of theft.',effects:{rep:-15},tone:'bad',result:'The video goes viral locally for the wrong reasons. Fakes remain because you have not used the legal remedies available.',next:'n3'}]},
+    n3:{title:'Customs “speed money”',text:'A container of stock is stuck at a foreign port. An official hints that US$200 in cash would “speed up processing”. Your company is listed in London and also has US investors.',choices:[
+      {label:'Pay it — everyone does and it is a small amount.',effects:{legal:-30,rep:-15,profit:5},tone:'bad',result:'Under the <b>UK Bribery Act</b> there is no facilitation-payment exception; a UK-listed firm can face unlimited fines. Records of such payments also create FCPA risk.',next:'n4'},
+      {label:'Refuse, document the request, escalate through your freight forwarder and the embassy trade section.',effects:{legal:15,rep:10,profit:-5},tone:'good',result:'The container clears three days later. You lose a little time but protect the company. Compliance programmes exist for exactly this moment.',next:'n4'},
+      {label:'Pay through a local agent so it is “not us”.',effects:{legal:-35,rep:-20},tone:'bad',result:'Payments through third parties are still bribery under the FCPA and UK Bribery Act. This is the classic route to prosecution.',next:'n4'}]},
+    n4:{title:'Distributor dispute',text:'Your Dubai distributor refuses to pay US$90,000, claiming late delivery. Your contract has an ICC arbitration clause.',choices:[
+      {label:'Start with mediation, then use ICC arbitration if needed.',effects:{legal:10,rep:10,profit:10},tone:'good',result:'Mediation keeps the relationship; arbitration is binding, private and enforceable in 170+ New York Convention countries.',next:'n5'},
+      {label:'Sue in a Pakistani court.',effects:{legal:-5,profit:-10},tone:'warn',result:'Your contract points to arbitration, so the court may refuse jurisdiction — and a Pakistani judgment is hard to enforce in the UAE.',next:'n5'}]},
+    n5:{title:'EU customer data',text:'You launch an online store for EU customers and want to email everyone who visits.',choices:[
+      {label:'Collect clear consent and publish a privacy notice that meets GDPR.',effects:{legal:15,rep:5},tone:'good',result:'GDPR applies to any business targeting EU residents, wherever it is based.'},
+      {label:'Buy an email list and blast offers.',effects:{legal:-25,rep:-10,profit:5},tone:'bad',result:'Unsolicited marketing without a lawful basis breaches GDPR; fines can reach 4% of global turnover.'}]}
+   },
+   endText:st=>st.legal>=70?'<b>Strong compliance record.</b> You protected IP early, refused bribery and used arbitration — the foundations of sustainable global expansion.':st.legal>=45?'<b>Some legal exposure.</b> Review which decisions created risk.':'<b>High legal risk.</b> Several choices could bring fines, prosecution or loss of your brand.'});
+ }},
+ {label:'2 · Sort the legal tools', build(el){ const c=card('Which category does each belong to?'); el.append(c);
+  classify(c,{bins:['Intellectual property','Anti-bribery','Dispute resolution'],items:[
+   {text:'Madrid System',bin:0,why:'International trademark registration.'},{text:'Patent Cooperation Treaty',bin:0,why:'One application to seek patents in many countries.'},{text:'TRIPS',bin:0,why:'WTO minimum standards for IP.'},{text:'Paris Convention',bin:0,why:'Priority rights for patents and marks.'},
+   {text:'FCPA (USA)',bin:1,why:'Bans bribery of foreign officials.'},{text:'UK Bribery Act 2010',bin:1,why:'No facilitation-payment exception.'},{text:'OECD Anti-Bribery Convention',bin:1,why:'Commits members to criminalise foreign bribery.'},
+   {text:'ICC arbitration',bin:2,why:'Binding private arbitration.'},{text:'New York Convention',bin:2,why:'Enforcement of arbitral awards.'},{text:'Conciliation / mediation',bin:2,why:'Non-binding, relationship-friendly.'},{text:'ICSID',bin:2,why:'Investor–state investment disputes.'}
+  ]});
+ }}
+]);
+</script></body></html>

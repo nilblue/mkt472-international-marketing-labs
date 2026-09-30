@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,fb,clear,bars,tabs,classify,sequence}=Lab;
+const app=page({n:20,
+  primer:[
+   "Global product planning chooses among <b>extension</b> (sell the same thing), <b>adaptation</b> (modify it) and <b>creation/invention</b> (design something new). Applying this to both product and communication gives <b>five strategic alternatives</b>:",
+   "<b>1 Product–communication extension</b> (dual extension) · <b>2 Product extension–communication adaptation</b> · <b>3 Product adaptation–communication extension</b> · <b>4 Product–communication adaptation</b> (dual adaptation) · <b>5 Product invention</b>.",
+   "The choice depends on three questions: Is the <b>need or function</b> the product serves the same? Are the <b>conditions of use</b> (climate, infrastructure, regulations) the same? Can customers <b>afford</b> the product?",
+   "<b>New product development</b>: idea generation → screening → business analysis/concept testing → product development → test marketing → commercialisation. Global firms increasingly build products for the world market from the start and use international new-product departments."
+  ],
+  discussion:["Find a product in Pakistan that uses each of the five strategies.","Why is dual extension the cheapest strategy, and when does it fail?","Give an example of product invention designed for low-income markets (‘reverse innovation’)."]
+});
+const ST=['1 · Product–communication extension','2 · Product extension–communication adaptation','3 · Product adaptation–communication extension','4 · Dual adaptation','5 · Product invention'];
+const COST=[1,2,3,4,5];
+tabs(app,[
+ {label:'1 · Strategy selector', build(el){ const c=card('Answer three questions about your target market'); const out=h('div'), chart=h('div');
+  const q=[['Does the product serve the same need or function there?','need'],['Are the conditions of use the same (climate, infrastructure, regulations)?','cond'],['Can target customers afford the product as it is?','buy']];
+  const sel={need:true,cond:true,buy:true};
+  const rows=q.map(([t,k])=>h('div',{class:'row',style:{margin:'10px 0',justifyContent:'space-between'}},h('span',null,t),h('span',{class:'row'},
+    ...[['Yes',true],['No',false]].map(([l,v])=>h('label',{class:'row small'},h('input',{type:'radio',name:k,checked:v?true:null,onchange:()=>{sel[k]=v;calc();}}),l)))));
+  c.append(...rows,out,h('h3',{style:{marginTop:'12px'}},'Relative cost of adjustment'),chart); el.append(c);
+  const EX=['Coca-Cola, smartphones, many industrial products.','Bicycles sold as leisure/fitness items in Europe but as everyday transport in Pakistan — same product, different message.','Detergent reformulated for local water hardness or voltage-specific appliances, advertised with the same global message.','Greeting cards or food brands with local recipes and local advertising.','A wind-up radio or ultra-low-cost phone designed for buyers without reliable power or high incomes.'];
+  function calc(){ let s; if(!sel.buy) s=4; else if(sel.need&&sel.cond) s=0; else if(!sel.need&&sel.cond) s=1; else if(sel.need&&!sel.cond) s=2; else s=3;
+    clear(out); out.append(fb('good',`<b>Recommended: ${ST[s]}.</b> Example: ${EX[s]}`));
+    bars(chart,ST.map((t,i)=>({label:t.replace(/^\d · /,''),value:COST[i],color:i===s?'--c3':'--c6'})),{max:5,labelW:260,fmt:v=>['','lowest','low','medium','high','highest'][v]}); }
+  calc();
+ }},
+ {label:'2 · Classify the cases', build(el){ const c=card('Which of the five strategies is it?'); el.append(c);
+  classify(c,{bins:ST,items:[
+   {text:'Same soft drink and same global ad worldwide',bin:0,why:'Dual extension.'},{text:'Same video-game console with the same launch campaign in 50 countries',bin:0,why:'Standard product and message.'},
+   {text:'Same motor-scooter sold as a lifestyle item in Italy and as family transport in Pakistan',bin:1,why:'Product unchanged, message adapted to a different function.'},
+   {text:'Petrol reformulated for hot and cold climates, same “power” slogan',bin:2,why:'Product adapted to conditions of use; communication extended.'},{text:'Air conditioners redesigned for voltage fluctuations, same brand ad',bin:2,why:'Conditions of use differ.'},
+   {text:'A burger chain’s spicy local-recipe burgers with locally made ads',bin:3,why:'Both product and message adapted.'},
+   {text:'A solar-powered lantern designed for off-grid villages',bin:4,why:'New product created because customers cannot use/afford the existing one.'}
+  ]});
+ }},
+ {label:'3 · New product development', build(el){ const c=card('Order the NPD stages'); el.append(c);
+  sequence(c,{steps:['Idea generation (customers, employees, R&D, competitors, global subsidiaries)','Idea screening','Concept testing & business analysis','Product development (prototype)','Test marketing','Commercialisation / launch'],explain:'Global firms often test in a lead market before rolling out world-wide.'});
+ }}
+]);
+</script></body></html>

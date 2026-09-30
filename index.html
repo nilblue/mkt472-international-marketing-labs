@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MKT472 International Marketing Labs</title>
+<meta name="description" content="32 interactive apps and simulations for MKT472 International Marketing, COMSATS University Islamabad, Wah Campus.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="index.html">MKT472 Labs <span>· International Marketing</span></a>
+  <div class="navlinks"><a class="btn" href="apps/L01.html">Start with Lecture 1 →</a></div>
+</div></header>
+<main class="wrap">
+  <section class="hero">
+    <div class="kicker">COMSATS University Islamabad · Wah Campus · Department of Management Sciences</div>
+    <h1>International Marketing Labs</h1>
+    <p class="lead">One interactive app or simulation for each of the 32 lectures in MKT472 (BS-BA / BS-BAF). Open a lab in class to demonstrate a concept, or assign it as practice. Everything runs in the browser — no login, no install, works on phones.</p>
+    <div class="tags"><span class="tag">16 weeks</span><span class="tag">32 labs</span><span class="tag">CLO1–CLO5</span><span class="tag">Primary text: Cateora, Gilly &amp; Graham</span></div>
+  </section>
+  <div class="card row" style="justify-content:space-between">
+    <input id="q" class="search" type="text" placeholder="Search labs (e.g. Incoterms, Hofstede, pricing)…" aria-label="Search labs">
+    <span id="count" class="small muted"></span>
+  </div>
+  <div id="list"></div>
+</main>
+<footer><div class="wrap">Instructor: Abid Naeem (Lecturer) · MKT472 International Marketing · Figures in these labs are simplified or illustrative for teaching; verify real-world data before using it in assignments.</div></footer>
+<script src="assets/lib.js"></script>
+<script>
+const {LECTURES,WEEKS,h,pad,clear,CLO}=Lab;
+const list=document.getElementById('list'), q=document.getElementById('q'), count=document.getElementById('count');
+function render(){
+  const term=q.value.trim().toLowerCase(); clear(list); let shown=0;
+  for(let w=1;w<=16;w++){
+    const items=LECTURES.filter(L=>L.w===w && (!term || (L.app+' '+L.topic+' '+L.desc+' '+L.kind).toLowerCase().includes(term)));
+    if(!items.length) continue; shown+=items.length;
+    list.append(h('div',{class:'weekhead'},`Week ${w} · ${WEEKS[w]}`),
+      h('div',{class:'weekgrid'}, items.map(L=>h('a',{class:'appcard',href:`apps/L${pad(L.n)}.html`},
+        h('div',{class:'n'},`LECTURE ${L.n}`), h('div',{class:'t'},L.app), h('div',{class:'d'},L.desc),
+        h('span',{class:'k'},L.kind), ' ', h('span',{class:'k'},CLO[L.n])))));
+  }
+  count.textContent=`${shown} of ${LECTURES.length} labs`;
+}
+q.addEventListener('input',render); render();
+</script>
+</body>
+</html>

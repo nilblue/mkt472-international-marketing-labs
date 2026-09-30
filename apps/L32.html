@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,fb,clear,tabs,scenarios,classify,sequence}=Lab;
+const app=page({n:32,
+  primer:[
+   "<b>Lean production</b> (pioneered by Toyota) eliminates waste and continuously improves (kaizen) using just-in-time flow, quality at the source and respect for people. Classic wastes: <b>transport, inventory, motion, waiting, over-production, over-processing and defects</b>.",
+   "<b>Ethics</b> in global marketing asks what is right when laws and norms differ between countries. <b>Corporate social responsibility (CSR)</b> is an organisation’s obligation to pursue goals that benefit society as well as shareholders.",
+   "Carroll’s <b>CSR pyramid</b>: <b>economic</b> (be profitable) → <b>legal</b> (obey the law) → <b>ethical</b> (do what is right, fair and just) → <b>philanthropic</b> (be a good corporate citizen).",
+   "<b>Social responsiveness</b>: firms answer to stakeholders — employees, suppliers, communities, NGOs, governments and customers — and increasingly report on the <b>triple bottom line</b> (profit, people, planet), ESG and the UN Sustainable Development Goals. Supply-chain disasters (e.g. factory fires and collapses in South Asia) show why buyers audit suppliers."
+  ],
+  discussion:["After major garment-factory disasters in South Asia, global brands signed safety accords. Were these CSR, risk management or both?","Where should a firm draw the line between adapting to local norms and applying its home ethical standards?","Which of the seven lean wastes is most common in organisations you know?"]
+});
+tabs(app,[
+ {label:'1 · CSR dilemma simulator', build(el){ const c=card('You head global sourcing for an apparel brand buying from South Asian suppliers'); el.append(c);
+  scenarios(c,{start:'d1',meters:[{key:'profit',label:'Profit',init:60},{key:'people',label:'People (workers & community)',init:40},{key:'planet',label:'Planet (environment)',init:40}],
+   nodes:{
+    d1:{title:'Factory safety',text:'An audit of your cheapest supplier finds blocked fire exits and cracks in a building wall. Fixing them will take eight weeks and raise costs 6%.',choices:[
+     {label:'Stop orders from the unsafe building immediately, co-fund repairs, pay workers during the closure.',effects:{profit:-10,people:25},tone:'good',result:'Costly in the short term, but you avoid the catastrophic human and reputational risk that factory collapses have shown.',next:'d2'},
+     {label:'Keep ordering and ask the supplier to fix things “when possible”.',effects:{profit:5,people:-25},tone:'bad',result:'You are knowingly exposing workers to deadly risk. Legal liability and brand damage could be enormous if disaster strikes.',next:'d2'}]},
+    d2:{title:'Wages',text:'Suppliers pay the legal minimum wage, but NGOs say it is far below a living wage.',choices:[
+     {label:'Adjust your purchase prices so suppliers can phase in higher wages, and verify payment.',effects:{profit:-10,people:20},tone:'good',result:'Moves you up Carroll’s pyramid from legal to ethical responsibility.',next:'d3'},
+     {label:'Point out it is legal and change nothing.',effects:{people:-10},tone:'warn',result:'Legally compliant, but stakeholders increasingly judge brands on ethical, not only legal, standards.',next:'d3'}]},
+    d3:{title:'Water & dyeing',text:'A dye house discharges untreated effluent into a river used by local villages.',choices:[
+     {label:'Require effluent treatment within six months and help finance a shared treatment plant.',effects:{profit:-8,planet:25,people:10},tone:'good',result:'Lean thinking helps: reducing water and chemical waste often cuts cost too.',next:'d4'},
+     {label:'Switch to another dye house quietly, without telling the first why.',effects:{planet:-5},tone:'warn',result:'The pollution continues; you have simply moved away from the problem.',next:'d4'}]},
+    d4:{title:'Lean production',text:'Your team proposes a lean programme at the main supplier: less over-production, fewer defects, just-in-time deliveries.',choices:[
+     {label:'Launch it with worker training and share the savings with the supplier.',effects:{profit:15,planet:10,people:5},tone:'good',result:'Less waste = lower cost, fewer unsold clothes in landfill, and a stronger supplier relationship.',next:'d5'},
+     {label:'Demand the supplier cut prices by 10% instead.',effects:{profit:5,people:-10},tone:'warn',result:'Squeezing suppliers often pushes the cost onto workers and the environment.',next:'d5'}]},
+    d5:{title:'Marketing claims',text:'Marketing wants to label the new line “100% sustainable”.',choices:[
+     {label:'Use specific, verified claims (e.g. “made with 60% recycled cotton, certified”).',effects:{profit:5,planet:5},tone:'good',result:'Accurate claims avoid greenwashing and regulatory penalties.'},
+     {label:'Go with “100% sustainable” — it tests well.',effects:{profit:5,planet:-10,people:-5},tone:'bad',result:'Vague absolute green claims are greenwashing, increasingly penalised by regulators and called out by NGOs.'}]}
+   },
+   endText:st=>{ const avg=(st.profit+st.people+st.planet)/3; return avg>=60?`<b>Balanced triple bottom line.</b> Profit ${st.profit}, people ${st.people}, planet ${st.planet}. You accepted short-term costs for long-term resilience.`:`<b>Unbalanced outcome.</b> Profit ${st.profit}, people ${st.people}, planet ${st.planet}. Which choices created hidden risks?`; }});
+ }},
+ {label:'2 · Spot the lean waste', build(el){ const c=card('Classify each example of waste'); el.append(c);
+  classify(c,{bins:['Transport','Inventory','Motion','Waiting','Over-production','Over-processing','Defects'],items:[
+   {text:'Fabric trucked between three warehouses before cutting',bin:0,why:'Unnecessary movement of materials.'},
+   {text:'Six months of finished stock sitting unsold',bin:1,why:'Excess inventory ties up capital and risks obsolescence.'},
+   {text:'Workers walking across the floor to fetch thread',bin:2,why:'Unnecessary movement of people.'},
+   {text:'Sewing line idle until a late shipment of buttons arrives',bin:3,why:'Waiting time.'},
+   {text:'Making 20% extra shirts “just in case”',bin:4,why:'Producing ahead of demand.'},
+   {text:'Polishing a hidden inner seam three times',bin:5,why:'Work the customer does not value.'},
+   {text:'Garments rejected for crooked stitching',bin:6,why:'Rework and scrap.'}
+  ]});
+ }},
+ {label:'3 · CSR pyramid', build(el){ const c=card('Order Carroll’s CSR pyramid from the base to the top'); el.append(c);
+  sequence(c,{steps:['Economic responsibility — be profitable','Legal responsibility — obey the law','Ethical responsibility — do what is right, fair and just','Philanthropic responsibility — be a good corporate citizen'],explain:'Each level rests on the one below; global firms face different legal and ethical expectations in every market.'});
+ }}
+]);
+</script></body></html>

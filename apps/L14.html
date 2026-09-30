@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,s,page,card,slider,numInput,stat,fb,fmt,money,clear,bars,tabs,quiz,cssVar}=Lab;
+const app=page({n:14,
+  primer:[
+   "Evaluating a target market considers <b>current size and growth potential</b>, <b>potential competition</b>, and <b>compatibility and feasibility</b> (does it fit the firm’s goals and can it be reached?).",
+   "The <b>chain-ratio method</b> estimates market potential: population × % in target segment × % who can afford/use the product × purchase frequency × average price.",
+   "Targeting strategy options: <b>standardized (undifferentiated)</b> global marketing — one mix for a broad market; <b>concentrated</b> — one segment; <b>differentiated</b> (multisegment) — different mixes for two or more segments.",
+   "<b>Positioning</b> locates a brand in consumers’ minds relative to competitors. Global positioning strategies include <b>global consumer culture positioning (GCCP)</b>, <b>foreign consumer culture positioning (FCCP)</b> and <b>local consumer culture positioning (LCCP)</b>, as well as attribute/benefit, quality/price, use/user and competition-based positioning."
+  ],
+  discussion:["Estimate the annual market potential for bottled water in Pakistan using the chain-ratio tool. Which assumption is weakest?","Give a brand example of GCCP, FCCP and LCCP in Pakistan.","Where is the white space on your positioning map, and is it really an opportunity or empty for a reason?"]
+});
+tabs(app,[
+ {label:'1 · Chain-ratio market potential', build(el){ const c=card('Estimate annual market potential'); const out=h('div'), chart=h('div');
+  const pop=slider({label:'Population (millions)',min:1,max:300,value:240,oninput:calc});
+  const seg=slider({label:'% in target segment (e.g. urban households)',min:1,max:100,value:38,fmt:v=>v+'%',oninput:calc});
+  const aff=slider({label:'% who can afford / would use the product',min:1,max:100,value:30,fmt:v=>v+'%',oninput:calc});
+  const freq=slider({label:'Purchases per user per year',min:1,max:100,value:12,oninput:calc});
+  const price=slider({label:'Average price per purchase (US$)',min:0.5,max:200,step:0.5,value:3,fmt:v=>'$'+v,oninput:calc});
+  const share=slider({label:'Share you can realistically win',min:1,max:50,value:5,fmt:v=>v+'%',oninput:calc});
+  const S=[stat('Users (millions)'),stat('Market potential (US$ m/yr)'),stat('Your sales potential (US$ m/yr)')];
+  c.append(h('div',{class:'grid2'},h('div',null,pop,seg,aff),h('div',null,freq,price,share)),h('div',{class:'grid3'},S),chart,out); el.append(c);
+  function calc(){ if(!share) return; const users=pop.get()*seg.get()/100*aff.get()/100; const mp=users*freq.get()*price.get(); const ys=mp*share.get()/100;
+    S[0].set(fmt(users,2)); S[1].set(money(mp,1)); S[2].set(money(ys,1));
+    bars(chart,[{label:'Population',value:pop.get()},{label:'Target segment',value:pop.get()*seg.get()/100},{label:'Able & willing users',value:users,color:'--c2'},{label:'Your customers',value:users*share.get()/100,color:'--c3'}],{fmt:v=>fmt(v,1)+'m'});
+    clear(out); out.append(fb('info',`Each step narrows the funnel. A 10-point error in the “afford/use” ratio changes market potential by <b>${money(pop.get()*seg.get()/100*0.1*freq.get()*price.get(),1)}m</b> — test that assumption with research.`)); }
+  calc();
+ }},
+ {label:'2 · Positioning map', build(el){ const c=card('Position a new tea brand — click the map to place your brand'); const mapEl=h('div'), out=h('div');
+  const comps=[{n:'Premium imported',x:85,y:80},{n:'Mass local loose tea',x:15,y:25},{n:'Leading national brand',x:50,y:55},{n:'Value tea bags',x:30,y:40},{n:'Herbal wellness',x:75,y:30}];
+  let me={x:60,y:85};
+  c.append(h('p',{class:'small muted'},'X-axis: price (low → high). Y-axis: modern/lifestyle image (traditional → modern).'),mapEl,out); el.append(c);
+  function draw(){ clear(mapEl); const W=560,H=380,m=40; const X=v=>m+v/100*(W-2*m), Y=v=>H-m-v/100*(H-2*m);
+    const sv=s('svg',{viewBox:`0 0 ${W} ${H}`,width:'100%',style:'max-width:620px;display:block;margin:auto;cursor:crosshair',role:'img'});
+    sv.append(s('rect',{x:m,y:m,width:W-2*m,height:H-2*m,fill:cssVar('--surface2'),rx:8}));
+    sv.append(s('line',{x1:X(50),x2:X(50),y1:m,y2:H-m,stroke:cssVar('--border')}),s('line',{x1:m,x2:W-m,y1:Y(50),y2:Y(50),stroke:cssVar('--border')}));
+    sv.append(s('text',{x:W/2,y:H-10,'text-anchor':'middle','font-size':12,fill:cssVar('--muted')},'Price →'),s('text',{x:14,y:H/2,'font-size':12,fill:cssVar('--muted'),transform:`rotate(-90 14 ${H/2})`,'text-anchor':'middle'},'Modern image →'));
+    comps.forEach(p=>{ sv.append(s('circle',{cx:X(p.x),cy:Y(p.y),r:8,fill:cssVar('--c6')}), s('text',{x:X(p.x)+11,y:Y(p.y)+4,'font-size':12},p.n)); });
+    sv.append(s('circle',{cx:X(me.x),cy:Y(me.y),r:10,fill:cssVar('--accent2'),stroke:cssVar('--surface'),'stroke-width':2}), s('text',{x:X(me.x)+13,y:Y(me.y)+4,'font-size':13,'font-weight':700},'Your brand'));
+    sv.addEventListener('click',e=>{ const r=sv.getBoundingClientRect(); const px=(e.clientX-r.left)/r.width*W, py=(e.clientY-r.top)/r.height*H;
+      me={x:Lab.clamp((px-m)/(W-2*m)*100,0,100),y:Lab.clamp((H-m-py)/(H-2*m)*100,0,100)}; draw(); });
+    mapEl.append(sv);
+    const d=comps.map(p=>({n:p.n,d:Math.hypot(p.x-me.x,p.y-me.y)})).sort((a,b)=>a.d-b.d)[0];
+    const pos=(me.y>60?(me.x>60?'premium modern — a GCCP/lifestyle position':'affordable modern — youth-oriented value'):(me.x>60?'premium traditional — heritage/quality (possibly FCCP “imported” cues)':'low-price traditional — LCCP, mass market'));
+    clear(out); out.append(fb(d.d<15?'warn':'good',d.d<15?`You are very close to <b>${d.n}</b> — head-to-head competition. Differentiate on another attribute or move.`:`Nearest rival: <b>${d.n}</b> (distance ${fmt(d.d)}). Your position reads as <b>${pos}</b>. Check that enough consumers actually want this combination.`)); }
+  draw();
+ }},
+ {label:'3 · Targeting & positioning check', build(el){ const c=card('Concept check'); el.append(c);
+  quiz(c,[
+   {q:'A firm sells one product with one marketing mix to a broad mass market worldwide. This is…',options:['Concentrated targeting','Differentiated targeting','Standardized global marketing','Niche marketing'],answer:2,explain:'Standardized (undifferentiated) targeting — like mass marketing on a global scale.'},
+   {q:'A Pakistani firm targets only halal-conscious diaspora consumers in the UK. This is…',options:['Concentrated targeting','Standardized marketing','Differentiated marketing','Mass marketing'],answer:0,explain:'One segment = concentrated (niche) targeting.'},
+   {q:'An ad stresses that a watch is Swiss-made to buyers in Asia. This is…',options:['GCCP','FCCP','LCCP','Use/user positioning'],answer:1,explain:'Foreign consumer culture positioning links the brand to a specific foreign culture.'},
+   {q:'A soft-drink ad shows young people from many countries sharing the same moment. This is…',options:['GCCP','FCCP','LCCP','Price positioning'],answer:0,explain:'Global consumer culture positioning presents the brand as a symbol of a global culture.'},
+   {q:'Which is NOT one of the three basic criteria for evaluating a target market?',options:['Current size & growth potential','Potential competition','Compatibility & feasibility','The CEO’s personal preference'],answer:3,explain:'Size/growth, competition, and compatibility/feasibility.'}
+  ]);
+ }}
+]);
+</script></body></html>

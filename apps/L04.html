@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,numInput,stat,fb,fmt,money,clear,bars,tabs,quiz}=Lab;
+const app=page({n:4,
+  primer:[
+   "Countries are grouped into <b>stages of market development</b> by gross national income (GNI) per capita: <b>low-income, lower-middle-income, upper-middle-income and high-income</b>. The stage signals purchasing power, infrastructure and the kind of products that will sell.",
+   "The <b>balance of payments (BoP)</b> records all economic transactions between residents of a country and the rest of the world. It has a <b>current account</b> (trade in goods, trade in services, primary income such as profits and interest, and secondary income such as remittances) and a <b>capital & financial account</b> (FDI, portfolio investment, loans, reserves).",
+   "A <b>current-account deficit</b> must be financed by a financial-account surplus — borrowing, investment inflows or drawing down reserves.",
+   "<b>Trade in merchandise</b> (goods) and <b>trade in services</b> (IT, tourism, transport, finance) are both part of the current account; services are a fast-growing share of world trade."
+  ],
+  discussion:["Why are workers' remittances so important to Pakistan's current account?","If a country runs a persistent current-account deficit, what pressures appear on its currency — and what does that mean for foreign marketers pricing in that market?","Which stage of development is Pakistan in, and what product strategies suit that stage?"]
+});
+tabs(app,[
+ {label:'1 · BoP simulator', build(el){
+   const c=card('Build a country’s balance of payments (US$ billions)');
+   const S={}; const mk=(k,l,v,min,max)=>S[k]=slider({label:l,min,max,step:0.5,value:v,fmt:x=>'$'+fmt(x,1)+'bn',oninput:calc});
+   const left=h('div',null,h('h3',null,'Current account'),
+     mk('gx','Merchandise exports (credit)',32,0,80), mk('gm','Merchandise imports (debit)',54,0,100),
+     mk('sx','Services exports — IT, freight, tourism',8,0,30), mk('sm','Services imports',11,0,30),
+     mk('pi','Primary income: net (profits/interest paid abroad = negative)',-8,-20,10),
+     mk('si','Secondary income: remittances & transfers (net)',30,0,50));
+   const right=h('div',null,h('h3',null,'Financial account inflows'),
+     mk('fdi','Net foreign direct investment',2,-5,20), mk('port','Net portfolio investment',0.5,-10,10), mk('loans','Net official & commercial borrowing',6,-10,30));
+   const chart=h('div'), out=h('div'), st=[stat('Trade balance (goods)'),stat('Current account'),stat('Financial account'),stat('Change in reserves')];
+   c.append(h('div',{class:'grid2'},left,right),h('div',{class:'grid3'},st),chart,out); el.append(c);
+   function calc(){ if(!S.loans) return; const v=k=>S[k].get();
+     const tb=v('gx')-v('gm'), sb=v('sx')-v('sm'), ca=tb+sb+v('pi')+v('si'), fa=v('fdi')+v('port')+v('loans'), res=ca+fa;
+     st[0].set(money(tb,1)+'bn'); st[1].set(money(ca,1)+'bn'); st[2].set(money(fa,1)+'bn'); st[3].set(money(res,1)+'bn');
+     bars(chart,[{label:'Goods balance',value:tb},{label:'Services balance',value:sb},{label:'Primary income',value:v('pi')},{label:'Secondary income',value:v('si')},{label:'Current account',value:ca,color:'--c2'},{label:'Financial account',value:fa,color:'--c4'},{label:'Reserves change',value:res,color:res>=0?'--c3':'--c5'}].map(d=>({...d,color:d.color||(d.value>=0?'--c1':'--c5')})),{fmt:x=>money(x,1)+'bn'});
+     clear(out); out.append(fb(res>=0?'good':'bad', res>=0?`Reserves <b>rise by $${fmt(res,1)}bn</b>. The currency is under little pressure — imports and foreign-currency pricing are easier.`:`Reserves <b>fall by $${fmt(-res,1)}bn</b>. The central bank must borrow, cut imports or let the currency weaken. Foreign marketers should expect import controls, price escalation and payment delays.`));
+   }
+   calc();
+ }},
+ {label:'2 · Classify transactions', build(el){ const c=card('Which account, credit or debit? (from Pakistan’s point of view)'); el.append(c);
+   const O=['Current — goods, credit (+)','Current — goods, debit (−)','Current — services','Current — primary income','Current — secondary income','Financial account'];
+   quiz(c,[
+    {q:'A Faisalabad mill ships denim to Europe.',options:O,answer:0,explain:'Merchandise export = goods credit.'},
+    {q:'Pakistan buys crude oil from Saudi Arabia.',options:O,answer:1,explain:'Merchandise import = goods debit.'},
+    {q:'A Lahore software house bills a US client for app development.',options:O,answer:2,explain:'IT exports are trade in services.'},
+    {q:'A worker in Dubai sends money home to family in Wah.',options:O,answer:4,explain:'Workers’ remittances are secondary income (current transfers).'},
+    {q:'A foreign-owned telecom firm pays dividends to its parent abroad.',options:O,answer:3,explain:'Investment income (profits, dividends, interest) is primary income.'},
+    {q:'A Chinese company builds a power plant in Pakistan (equity investment).',options:O,answer:5,explain:'FDI is recorded in the financial account.'},
+    {q:'Pakistani students pay tuition to a UK university.',options:O,answer:2,explain:'Education bought abroad is an import of services (travel/education).'}
+   ]);
+ }},
+ {label:'3 · Stage of development', build(el){ const c=card('Classify a market by GNI per capita');
+   const out=h('div');
+   const g=slider({label:'GNI per capita (US$, Atlas method)',min:300,max:80000,step:50,value:1600,fmt:v=>'$'+fmt(v),oninput:calc});
+   c.append(g,h('p',{class:'small muted'},'Thresholds used (approximate World Bank bands, updated every July — check the latest): low ≤ $1,135; lower-middle $1,136–4,495; upper-middle $4,496–13,935; high > $13,935.'),out); el.append(c);
+   const T=[[1135,'Low-income','Basic needs dominate; low-price, small pack sizes, durable and simple products; limited infrastructure and modern retail.'],[4495,'Lower-middle-income','Fast urbanisation and a rising middle class; sachet and value packs, mobile-first marketing, growing modern trade.'],[13935,'Upper-middle-income','Branded consumer goods and durables grow fast; organised retail and e-commerce expand; quality-seeking consumers.'],[1e12,'High-income','Saturated basic markets; innovation, services, premium and experience-led products; strong digital channels.']];
+   function calc(){ const v=g.get(); const t=T.find(x=>v<=x[0]); clear(out); out.append(fb('info',`<b>${t[1]}.</b> ${t[2]}`)); }
+   calc();
+ }}
+]);
+</script></body></html>

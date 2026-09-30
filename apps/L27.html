@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,stat,fb,fmt,money,clear,bars,tabs,sequence,scenarios}=Lab;
+const app=page({n:27,
+  primer:[
+   "<b>Sales promotion</b>: paid, short-term communication programmes that add tangible value — price deals, <b>coupons</b>, <b>sampling</b>, contests, premiums, rebates, trade promotions. Laws on promotions vary by country (e.g. limits on premiums, lotteries or discount size).",
+   "<b>Couponing</b> works where retail systems can handle redemption; misredemption and fraud are risks. <b>Sampling</b> gives a free trial — powerful for new products but costly; it can be done door-to-door, in-store, by mail or via events and influencers.",
+   "<b>Personal selling</b> is two-way, person-to-person communication. The <b>strategic/consultative selling model</b> has five interrelated steps: <b>personal selling philosophy</b>, <b>relationship strategy</b>, <b>product strategy</b>, <b>customer strategy</b> and <b>presentation strategy</b>.",
+   "The <b>presentation plan</b>: approach → presentation → demonstration → negotiation → close → servicing the sale. Consultative sellers diagnose needs and act as problem-solvers rather than pushing products."
+  ],
+  discussion:["Would couponing work in Pakistan’s kiryana-dominated retail? What promotion would work better?","Why is ‘servicing the sale’ part of the presentation plan?","How does cultural context (from Lecture 7) change the approach and close steps?"]
+});
+tabs(app,[
+ {label:'1 · Coupon & sampling ROI', build(el){ const c=card('Evaluate two promotion options for a new shampoo'); const chart=h('div'), out=h('div');
+  const V={}; const add=(k,o)=>V[k]=slider({...o,oninput:calc});
+  const L=h('div',null,h('h3',null,'Coupon campaign'),add('cn',{label:'Coupons distributed',min:10000,max:2000000,step:10000,value:500000,fmt:v=>fmt(v)}),add('cr',{label:'Redemption rate',min:0.5,max:20,step:0.5,value:3,fmt:v=>v+'%'}),add('cf',{label:'Face value per coupon',min:0.1,max:3,step:0.05,value:0.5,fmt:v=>'$'+v.toFixed(2)}),add('cd',{label:'Printing & distribution per 1,000',min:1,max:50,value:12,fmt:v=>'$'+v}),add('ci',{label:'Share of redeemers who are NEW buyers',min:0,max:100,value:40,fmt:v=>v+'%'}));
+  const R=h('div',null,h('h3',null,'Sampling campaign'),add('sn',{label:'Samples given',min:10000,max:500000,step:5000,value:100000,fmt:v=>fmt(v)}),add('sc',{label:'Cost per sample (product + delivery)',min:0.1,max:3,step:0.05,value:0.6,fmt:v=>'$'+v.toFixed(2)}),add('st',{label:'Samplers who buy the full product',min:1,max:50,value:15,fmt:v=>v+'%'}),
+    h('h3',{style:{marginTop:'10px'}},'Both'),add('rp',{label:'Repeat purchases per new customer in year 1',min:1,max:12,value:4}),add('mg',{label:'Gross margin per bottle',min:0.2,max:5,step:0.1,value:1.2,fmt:v=>'$'+v.toFixed(2)}));
+  const S=[stat('Coupon ROI'),stat('Sampling ROI'),stat('Cost per new customer (coupon / sample)')];
+  c.append(h('div',{class:'grid2'},L,R),h('div',{class:'grid3'},S),chart,out); el.append(c);
+  function calc(){ if(!V.mg) return; const v=k=>V[k].get();
+    const red=v('cn')*v('cr')/100, cCost=v('cn')/1000*v('cd')+red*v('cf'), cNew=red*v('ci')/100, cGain=cNew*v('rp')*v('mg')+(red-cNew)*0; // existing users: subsidised, no gain
+    const sCost=v('sn')*v('sc'), sNew=v('sn')*v('st')/100, sGain=sNew*v('rp')*v('mg');
+    const rc=(cGain-cCost)/cCost, rs=(sGain-sCost)/sCost;
+    S[0].set(fmt(rc*100)+'%'); S[1].set(fmt(rs*100)+'%'); S[2].set(money(cCost/Math.max(cNew,1),2)+' / '+money(sCost/Math.max(sNew,1),2));
+    bars(chart,[{label:'Coupon cost',value:cCost,color:'--c5'},{label:'Coupon margin gained',value:cGain,color:'--c3'},{label:'Sampling cost',value:sCost,color:'--c5'},{label:'Sampling margin gained',value:sGain,color:'--c3'}],{fmt:x=>money(x)});
+    clear(out); out.append(fb('info',`Coupons redeemed by <b>existing</b> customers (${fmt(100-v('ci'))}%) are pure subsidy — that is why targeting matters. ${rs>rc?'<b>Sampling</b> wins here: trial of a new product drives more new customers per dollar.':'<b>Couponing</b> wins here: cheaper per new customer at these rates.'}`)); }
+  calc();
+ }},
+ {label:'2 · Consultative selling role-play', build(el){ const c=card('You sell water-treatment systems to a textile mill in Faisalabad'); el.append(c);
+  scenarios(c,{start:'s1',meters:[{key:'trust',label:'Relationship',init:40},{key:'need',label:'Understanding of needs',init:30},{key:'deal',label:'Deal likelihood',init:30}],
+   nodes:{
+    s1:{title:'Approach',text:'You meet the mill’s plant manager for the first time.',choices:[
+     {label:'Open with your price list and a 20% discount offer.',effects:{trust:-10,deal:-5},tone:'bad',result:'Leading with price positions you as a vendor, not a consultant.',next:'s2'},
+     {label:'Introduce yourself, reference a mutual contact, and ask about their water challenges and export buyers’ requirements.',effects:{trust:15,need:10},tone:'good',result:'Relationship strategy: rapport and credibility before products.',next:'s2'}]},
+    s2:{title:'Need discovery',text:'The manager mentions that European buyers now audit wastewater and that effluent fines have increased.',choices:[
+     {label:'Ask probing questions: volumes, current treatment, audit dates, cost of non-compliance.',effects:{need:25,trust:5},tone:'good',result:'Customer strategy: you are diagnosing the real problem — keeping export customers.',next:'s3'},
+     {label:'Say “Our system solves that” and move to the brochure.',effects:{need:-5},tone:'warn',result:'You skipped diagnosis; your proposal may not fit their volumes or budget.',next:'s3'}]},
+    s3:{title:'Presentation & demonstration',text:'You have 30 minutes with the owner and the plant manager.',choices:[
+     {label:'Show a tailored solution: effluent results from a similar mill, a payback calculation, and a site-visit offer.',effects:{deal:25,trust:10},tone:'good',result:'Product strategy + presentation strategy: benefits linked to their stated needs, with proof.',next:'s4'},
+     {label:'Present every feature in your 60-slide deck.',effects:{deal:-5,trust:-5},tone:'warn',result:'Feature-dumping overwhelms. Consultative selling is selective and benefit-led.',next:'s4'}]},
+    s4:{title:'Negotiation',text:'The owner says: “Your price is 25% higher than a Chinese supplier.”',choices:[
+     {label:'Cut the price 25% immediately.',effects:{deal:5,trust:-5},tone:'warn',result:'You may win the order but destroy margin and signal the original price was inflated.',next:'s5'},
+     {label:'Explore total cost of ownership, local service, audit support; offer phased payment instead of a discount.',effects:{deal:20,trust:10},tone:'good',result:'Win-win negotiation around value, not just price.',next:'s5'}]},
+    s5:{title:'Close & servicing the sale',text:'The owner seems convinced but hesitant.',choices:[
+     {label:'Summarise agreed benefits and propose a start date; after installation, schedule quarterly check-ups.',effects:{deal:20,trust:15},tone:'good',result:'A natural close followed by service — which builds the long-term relationship and referrals.'},
+     {label:'Pressure: “This offer expires today.”',effects:{deal:-10,trust:-15},tone:'bad',result:'High-pressure closes damage trust, especially in relationship-oriented cultures.'}]}
+   },
+   endText:st=>st.deal>=70?'<b>Deal won</b> through a consultative, relationship-based approach.':st.deal>=45?'<b>Deal possible</b> but not secured. Review your discovery and negotiation steps.':'<b>Deal lost.</b> Replay with more focus on customer needs and value.'});
+ }},
+ {label:'3 · Presentation plan', build(el){ const c=card('Order the six steps of the presentation plan'); el.append(c);
+  sequence(c,{steps:['Approach','Presentation','Demonstration','Negotiation','Close','Servicing the sale'],explain:'The plan sits inside the fifth step of the consultative model — presentation strategy.'});
+ }}
+]);
+</script></body></html>

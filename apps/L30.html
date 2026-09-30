@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,stat,fb,fmt,clear,radar,tabs,quiz,selectBox}=Lab;
+const app=page({n:30,
+  primer:[
+   "<b>Industry analysis</b> with Porter’s <b>five forces</b>: threat of new entrants, threat of substitutes, bargaining power of buyers, bargaining power of suppliers, and rivalry among competitors. The stronger the forces, the lower the industry’s profit potential.",
+   "<b>Competitive advantage</b> comes from generic strategies — <b>cost leadership</b>, <b>differentiation</b>, <b>focused differentiation</b> or <b>cost focus</b> — and from building <b>layers of advantage</b>, flanking attacks and cooperation.",
+   "Porter’s <b>national competitive advantage (the Diamond)</b>: <b>factor conditions</b> (human, physical, knowledge, capital, infrastructure), <b>demand conditions</b> (sophisticated home buyers), <b>related and supporting industries</b> (clusters), and <b>firm strategy, structure and rivalry</b>. <b>Chance</b> and <b>government</b> influence all four.",
+   "Clusters — such as Sialkot’s surgical-instrument and sports-goods cluster — show how rivalry and supporting industries in one place create world-class exporters."
+  ],
+  discussion:["Use the diamond to explain why Sialkot became a world leader in hand-stitched footballs and surgical instruments.","Which of Pakistan’s industries has the weakest diamond, and what could government do about it?","Choose a Pakistani industry and identify its strongest competitive force."]
+});
+const FF=['Threat of new entrants','Threat of substitutes','Buyer power','Supplier power','Rivalry among competitors'];
+const DM=['Factor conditions','Demand conditions','Related & supporting industries','Firm strategy, structure & rivalry','Government','Chance'];
+const PRE={'Pakistan · Textiles & apparel':{ff:[5,4,9,5,8],dm:[6,3,7,6,5,4]},'Pakistan · IT services':{ff:[7,4,6,3,6],dm:[7,4,4,6,6,6]},'Pakistan · Surgical instruments (Sialkot cluster)':{ff:[4,3,7,4,7],dm:[7,3,8,8,4,5]},'Global · Commercial aircraft':{ff:[1,2,6,5,5],dm:[9,8,9,6,8,4]}};
+tabs(app,[
+ {label:'1 · Five forces', build(el){ const c=card('Rate each force (0 = weak, 10 = very strong)'); const r=h('div'), out=h('div');
+  const sl=FF.map(f=>slider({label:f,min:0,max:10,value:5,oninput:calc}));
+  const pre=selectBox({label:'Load an illustrative preset (for debate, not fact)',options:[['','— choose —'],...Object.keys(PRE).map(k=>[k,k])],value:'',onchange:k=>{ if(PRE[k]) PRE[k].ff.forEach((v,i)=>sl[i].set(v)); }});
+  const S=stat('Industry attractiveness');
+  c.append(pre,h('div',{class:'grid2'},h('div',null,sl,S),h('div',null,r,out))); el.append(c);
+  function calc(){ if(!sl[4]) return; const v=sl.map(x=>x.get()); const att=100-v.reduce((a,b)=>a+b,0)/50*100; S.set(fmt(att)+'/100');
+    radar(r,FF.map(f=>f.replace('Threat of ','').replace('Bargaining ','')),[{name:'Force strength',values:v,color:'--c5'}],{max:10,size:380});
+    const top=FF[v.indexOf(Math.max(...v))]; clear(out);
+    out.append(fb(att>=60?'good':att>=40?'warn':'bad',`<b>${att>=60?'Attractive':att>=40?'Moderately attractive':'Unattractive'} industry.</b> Strongest force: <b>${top}</b>. ${({'Threat of new entrants':'Build barriers: scale, brand, distribution access, patents.','Threat of substitutes':'Increase switching costs and differentiate on benefits substitutes cannot match.','Buyer power':'Diversify customers, build brand pull, move up the value chain.','Supplier power':'Multiple sourcing, backward integration or long-term contracts.','Rivalry among competitors':'Differentiate, find a focus niche, or compete on innovation rather than price.'})[top]}`)); }
+  calc();
+ }},
+ {label:'2 · Porter’s Diamond', build(el){ const c=card('Rate the national diamond for an industry (0–10)'); const r=h('div'), out=h('div');
+  const sl=DM.map(f=>slider({label:f,min:0,max:10,value:5,oninput:calc}));
+  const pre=selectBox({label:'Load an illustrative preset (for debate, not fact)',options:[['','— choose —'],...Object.keys(PRE).map(k=>[k,k])],value:'',onchange:k=>{ if(PRE[k]) PRE[k].dm.forEach((v,i)=>sl[i].set(v)); }});
+  c.append(pre,h('div',{class:'grid2'},h('div',null,sl),h('div',null,r,out))); el.append(c);
+  const FIX=['Invest in advanced factors: technical skills, R&D, infrastructure and finance.','Cultivate demanding home buyers and quality standards.','Develop the cluster: suppliers, machinery, testing labs, logistics.','Encourage rivalry and export orientation; reduce protection of inefficient firms.','Stable policy, export facilitation, standards and trade agreements.','Prepare to exploit shocks (e.g. supply-chain shifts, new technologies).'];
+  function calc(){ if(!sl[5]) return; const v=sl.map(x=>x.get()); radar(r,DM.map(d=>d.split(' ')[0]+(d.includes('&')?'…':'')),[{name:'Diamond',values:v}],{max:10,size:380});
+    const core=v.slice(0,4).reduce((a,b)=>a+b,0)/4, weak=v.slice(0,4).indexOf(Math.min(...v.slice(0,4)));
+    clear(out); out.append(fb(core>=7?'good':core>=5?'warn':'bad',`<b>Core diamond average: ${fmt(core,1)}/10.</b> ${core>=7?'Conditions support a world-competitive industry.':'The industry will struggle to compete globally without upgrading.'} Weakest corner: <b>${DM[weak]}</b> — ${FIX[weak]}`)); }
+  calc();
+ }},
+ {label:'3 · Concept check', build(el){ const c=card('Competitive advantage'); el.append(c);
+  quiz(c,[
+   {q:'Which is NOT one of the four main corners of Porter’s Diamond?',options:['Factor conditions','Demand conditions','Related & supporting industries','Exchange rates'],answer:3,explain:'The four: factor conditions, demand conditions, related & supporting industries, firm strategy/structure/rivalry (plus chance and government).'},
+   {q:'Offering a unique product to a narrow segment is…',options:['Cost leadership','Differentiation','Focused differentiation','Cost focus'],answer:2,explain:'Narrow scope + differentiation.'},
+   {q:'Strong local rivalry tends to…',options:['Weaken global competitiveness','Push firms to innovate and become world-class','Have no effect','Always cause losses'],answer:1,explain:'Porter found intense domestic rivalry drives upgrading.'},
+   {q:'Many buyers switching easily between many sellers of a standard product means…',options:['High buyer power','Low rivalry','High barriers to entry','Low substitute threat'],answer:0,explain:'Standard products and low switching costs empower buyers.'}
+  ]);
+ }}
+]);
+</script></body></html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,fb,fmt,money,clear,bars,tabs,classify,quiz,shuffle}=Lab;
+const app=page({n:19,
+  primer:[
+   "A <b>product</b> is a bundle of tangible and intangible attributes delivering benefits; a <b>brand</b> is the promise, image and associations attached to it. <b>Brand equity</b> is the value those associations add.",
+   "<b>Local products/brands</b> are available in one national market; <b>international</b> brands in several markets (often a region); <b>global</b> brands carry the same name and similar image and positioning worldwide.",
+   "The <b>country-of-origin (COO) effect</b>: consumers use ‘Made in…’ as a cue for quality, prestige or risk. Perceptions can be positive (German engineering, Italian fashion, Japanese electronics) or negative, and they change over time as countries upgrade (Japan and South Korea did; China is doing so).",
+   "Firms respond by emphasising favourable COO, stressing <b>brand origin</b> instead of manufacturing location, adding quality certifications, or co-branding."
+  ],
+  discussion:["Run the experiment with your classmates. Which origin got the highest willingness to pay, and why?","What could Pakistan do to strengthen its country image for products like textiles, surgical instruments or sports goods?","Is ‘brand origin’ (where the brand is from) now more important than ‘made in’ (where it was produced)?"]
+});
+const ORG=['Italy','Germany','Pakistan','China','Japan','Bangladesh','Türkiye'];
+tabs(app,[
+ {label:'1 · COO experiment', build(el){ const c=card('Rate a leather jacket'); el.append(c);
+  let order=shuffle(ORG), i=0; const res={};
+  const body=h('div'); c.append(body);
+  function step(){ clear(body);
+    if(i>=order.length){ const chart=h('div'), chart2=h('div');
+      body.append(h('h3',null,'The reveal'), fb('warn','<b>All seven jackets were identical</b> — same photo, leather, stitching and description. Only the “Made in” label changed. Any difference in your ratings is the country-of-origin effect.'),
+        h('div',{class:'grid2'},h('div',null,h('h3',null,'Your quality rating (1–10)'),chart),h('div',null,h('h3',null,'Your willingness to pay'),chart2)));
+      const data=ORG.map(o=>({label:o,value:res[o].q})).sort((a,b)=>b.value-a.value); bars(chart,data,{max:10,fmt:v=>fmt(v,0)});
+      const d2=ORG.map(o=>({label:o,value:res[o].p,color:'--c2'})).sort((a,b)=>b.value-a.value); bars(chart2,d2,{fmt:v=>money(v)});
+      const spread=d2[0].value-d2[d2.length-1].value;
+      body.append(fb('info',`Your willingness to pay varied by <b>${money(spread)}</b> for the same product. Multiply that by thousands of units and the COO effect becomes a major pricing and branding issue.`), h('button',{class:'primary',onclick:()=>{order=shuffle(ORG);i=0;step();}},'Run again'));
+      return; }
+    const o=order[i]; let q,p;
+    body.append(h('div',{class:'small muted'},`Jacket ${i+1} of ${order.length}`),
+      h('div',{class:'stat',style:{margin:'10px 0'}},h('div',{class:'l'},'Product card'),h('h3',null,'Classic lambskin leather jacket'),h('div',{class:'small'},'Full-grain lambskin · YKK zips · polyester lining · sizes S–XXL'),h('div',{style:{marginTop:'8px',fontWeight:700,fontSize:'18px'}},'Made in '+o)),
+      q=slider({label:'Perceived quality (1–10)',min:1,max:10,value:5}), p=slider({label:'The most you would pay (US$)',min:20,max:400,step:5,value:120,fmt:v=>'$'+v}),
+      h('button',{class:'primary',onclick:()=>{res[o]={q:q.get(),p:p.get()};i++;step();}},'Next jacket →'));
+  }
+  step();
+ }},
+ {label:'2 · Local, international or global?', build(el){ const c=card('Classify the brands'); el.append(c);
+  classify(c,{bins:['Local brand','International / regional brand','Global brand'],items:[
+   {text:'Coca-Cola',bin:2,why:'Same name and positioning in almost every country.'},{text:'Apple iPhone',bin:2,why:'Global brand, standardized worldwide.'},{text:'Toyota',bin:2,why:'Global automotive brand.'},
+   {text:'A Wah city bakery',bin:0,why:'Sold only locally.'},{text:'Shan Foods (spice mixes)',bin:1,why:'A Pakistani brand sold in many countries, especially to South Asian consumers abroad.'},{text:'Almarai (dairy)',bin:1,why:'Strong across the GCC/Middle East region.'},
+   {text:'A national newspaper',bin:0,why:'Language and content are national.'},{text:'Nestlé Milkpak',bin:0,why:'A local brand owned by a global company — companies often run local brands alongside global ones.'}
+  ]});
+ }},
+ {label:'3 · Concept check', build(el){ const c=card('Brand & COO'); el.append(c);
+  quiz(c,[
+   {q:'Consumers pay more for a watch labelled “Swiss made”. This is…',options:['Dumping','The country-of-origin effect','Gray marketing','Price fixing'],answer:1,explain:'The origin cue signals quality and prestige.'},
+   {q:'A brand with the same name, image and positioning in most countries is a…',options:['Local brand','International brand','Global brand','Private label'],answer:2,explain:'Global brands are standardized in name and positioning.'},
+   {q:'How can a firm reduce a negative COO effect?',options:['Hide all labels illegally','Stress the brand’s origin, quality certifications and co-branding','Lower quality','Stop advertising'],answer:1,explain:'Legitimate strategies shift attention to brand, quality and trusted partners.'},
+   {q:'Brand equity is best defined as…',options:['The factory value','The added value a brand name gives a product','Total advertising spend','The share price'],answer:1,explain:'Awareness, perceived quality, associations and loyalty create equity.'}
+  ]);
+ }}
+]);
+</script></body></html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,stat,fb,fmt,money,clear,bars,tabs,quiz,selectBox}=Lab;
+const app=page({n:28,
+  primer:[
+   "<b>Direct marketing</b> communicates directly with targeted customers to generate a <b>measurable response</b> — direct mail, catalogues, email, SMS/WhatsApp, telemarketing and direct-response TV. Its success rests on the quality of the <b>database/list</b> and on data-protection law in each country.",
+   "The <b>break-even response rate</b> = cost per contact ÷ (average order value × gross margin). Any response above it earns profit.",
+   "<b>Sponsorship</b> pays to associate a brand with an event, team or cause (e.g. cricket leagues, the Olympics, the FIFA World Cup). Value comes from exposure, image transfer, hospitality and activation.",
+   "The <b>digital revolution</b> — from the transistor and PC to the internet, mobile and cloud — drives <b>convergence</b>: previously separate industries and products (phones, cameras, music, TV, payments) merge onto digital platforms, creating new competitors and <b>disruptive technologies</b>."
+  ],
+  discussion:["Why do WhatsApp and SMS campaigns have such low break-even response rates, and what are the legal and ethical limits?","Is sponsoring a Pakistan Super League team good value for a multinational? How would you measure it?","Give three examples of convergence that disrupted an established industry."]
+});
+const CH={mail:['Direct mail (printed)',0.9,1.5],email:['Email to opted-in list',0.01,0.6],sms:['SMS / WhatsApp business message',0.02,1.2],tele:['Telemarketing call',1.5,4],cat:['Catalogue',3,3]};
+tabs(app,[
+ {label:'1 · Break-even response calculator', build(el){ const c=card('Plan a direct-marketing campaign'); const chart=h('div'), out=h('div');
+  const ch=selectBox({label:'Channel (loads typical cost & response)',options:Object.entries(CH).map(([k,v])=>[k,v[0]]),value:'mail',onchange:k=>{cpp.set(CH[k][1]); rr.set(CH[k][2]);}});
+  const n=slider({label:'Contacts (list size)',min:1000,max:500000,step:1000,value:50000,fmt:v=>fmt(v),oninput:calc});
+  const cpp=slider({label:'Cost per contact (US$)',min:0.01,max:5,step:0.01,value:0.9,fmt:v=>'$'+v.toFixed(2),oninput:calc});
+  const aov=slider({label:'Average order value (US$)',min:5,max:300,value:60,fmt:v=>'$'+v,oninput:calc});
+  const mg=slider({label:'Gross margin',min:5,max:80,value:40,fmt:v=>v+'%',oninput:calc});
+  const rr=slider({label:'Expected response rate',min:0.1,max:10,step:0.1,value:1.5,fmt:v=>v.toFixed(1)+'%',oninput:calc});
+  const S=[stat('Break-even response'),stat('Expected orders'),stat('Campaign profit')];
+  c.append(h('div',{class:'grid2'},h('div',null,ch,n,cpp),h('div',null,aov,mg,rr)),h('div',{class:'grid3'},S),chart,out); el.append(c);
+  function calc(){ if(!rr) return; const be=cpp.get()/(aov.get()*mg.get()/100), orders=n.get()*rr.get()/100, profit=orders*aov.get()*mg.get()/100-n.get()*cpp.get();
+    S[0].set(fmt(be*100,2)+'%'); S[1].set(fmt(orders)); S[2].set(money(profit));
+    bars(chart,[{label:'Break-even response %',value:be*100,color:'--c2'},{label:'Expected response %',value:rr.get(),color:rr.get()/100>=be?'--c3':'--c5'}],{fmt:v=>fmt(v,2)+'%'});
+    clear(out); out.append(fb(profit>=0?'good':'bad',profit>=0?`Profitable: expected response is ${fmt(rr.get()/(be*100),1)}× the break-even rate.`:'Loss-making at these assumptions. Improve list targeting, raise the offer’s value, or use a cheaper channel.'));
+    if(ch.get()==='sms'||ch.get()==='email') out.append(fb('warn','Low cost tempts spamming. Use opted-in lists only and follow data-protection rules (e.g. GDPR in the EU, PTA rules on unsolicited SMS in Pakistan).'));
+  }
+  calc();
+ }},
+ {label:'2 · Sponsorship evaluator', build(el){ const c=card('Should we sponsor a T20 cricket league team?'); const chart=h('div'), out=h('div');
+  const fee=slider({label:'Sponsorship rights fee (US$)',min:50000,max:3000000,step:50000,value:800000,fmt:v=>money(v),oninput:calc});
+  const act=slider({label:'Activation spend (ads, events, promotions) as % of fee',min:0,max:200,step:10,value:100,fmt:v=>v+'%',oninput:calc,hint:'Rule of thumb: spend at least as much activating as on the fee.'});
+  const sec=slider({label:'Logo exposure on TV/streaming (seconds of clear on-screen time)',min:0,max:20000,step:250,value:6000,fmt:v=>fmt(v)+'s',oninput:calc});
+  const rate=slider({label:'Equivalent cost of 30s TV spot (US$)',min:500,max:20000,step:500,value:4000,fmt:v=>money(v),oninput:calc});
+  const disc=slider({label:'Discount for logo-only exposure vs a real ad',min:50,max:95,value:80,fmt:v=>v+'%',oninput:calc});
+  const sales=slider({label:'Estimated incremental gross margin from activation (US$)',min:0,max:3000000,step:50000,value:700000,fmt:v=>money(v),oninput:calc});
+  const S=[stat('Total cost'),stat('Media-equivalent value'),stat('ROI')];
+  c.append(h('div',{class:'grid2'},h('div',null,fee,act,sales),h('div',null,sec,rate,disc)),h('div',{class:'grid3'},S),chart,out); el.append(c);
+  function calc(){ if(!sales) return; const cost=fee.get()*(1+act.get()/100), mev=sec.get()/30*rate.get()*(1-disc.get()/100), val=mev+sales.get(), roi=(val-cost)/cost;
+    S[0].set(money(cost)); S[1].set(money(mev)); S[2].set(fmt(roi*100)+'%');
+    bars(chart,[{label:'Rights fee',value:fee.get(),color:'--c5'},{label:'Activation',value:fee.get()*act.get()/100,color:'--c5'},{label:'Media-equivalent value',value:mev,color:'--c1'},{label:'Incremental margin',value:sales.get(),color:'--c3'}],{fmt:x=>money(x)});
+    clear(out); out.append(fb(roi>=0?'good':'warn',roi>=0?'The sponsorship pays back on measurable value alone; image benefits come on top.':`Measurable value falls short by ${money(cost-val)}. The deal only makes sense if image transfer, hospitality or trade relationships justify the gap.`));
+    if(act.get()<50) out.append(fb('warn','Low activation: many sponsorships fail because the brand buys the rights but does not tell the story.')); }
+  calc();
+ }},
+ {label:'3 · Digital revolution check', build(el){ const c=card('Convergence & disruption'); el.append(c);
+  quiz(c,[
+   {q:'The break-even response rate for a $0.50 mailing, $50 order and 40% margin is…',options:['0.25%','2.5%','10%','25%'],answer:1,explain:'0.50 ÷ (50 × 0.40) = 0.025 = 2.5%.'},
+   {q:'Smartphones replacing cameras, music players and maps is an example of…',options:['Convergence','Dumping','Countertrade','Ethnocentrism'],answer:0,explain:'Digital technology merges formerly separate product categories.'},
+   {q:'A technology that starts inferior and cheap but eventually overturns incumbents is…',options:['Sustaining technology','Disruptive technology','Legacy technology','Proprietary technology'],answer:1,explain:'Christensen’s disruptive innovation.'},
+   {q:'Spending on ads and events to exploit a sponsorship is called…',options:['Ambush marketing','Activation','Countertrade','Couponing'],answer:1,explain:'Ambush marketing is when a NON-sponsor tries to associate with the event.'},
+   {q:'Direct marketing is distinguished by…',options:['Its focus on a measurable response from targeted individuals','Use of TV only','No use of databases','No personalisation'],answer:0,explain:'Response measurement is the hallmark of direct marketing.'}
+  ]);
+ }}
+]);
+</script></body></html>

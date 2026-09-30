@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,s,page,card,slider,stat,fb,fmt,clear,tabs,quiz,weighted,cssVar}=Lab;
+const app=page({n:25,
+  primer:[
+   "<b>Global advertising</b> uses the same appeals, messages, art, copy, photos or story lines in many countries. The debate is <b>standardization vs adaptation</b>: standardized ads save cost and build a consistent global image; adapted ads fit local culture, language, law and media.",
+   "Most firms use <b>pattern standardization</b>: a global strategy and creative idea, with local execution (language, models, settings, humour).",
+   "Standardization works best when consumer needs are universal, the product is used the same way, the brand has a global image, and media and rules allow it. Adaptation is needed when culture, language, regulation, media availability or level of market development differ sharply.",
+   "<b>Advertising agencies</b>: global agency networks and holding companies (e.g. WPP, Omnicom, Publicis), regional or local independents, and in-house teams. Selection criteria include market coverage, creative quality, research capability, relationships and cost."
+  ],
+  discussion:["Find one global ad that ran almost unchanged in Pakistan, and one that was heavily localised. Why the difference?","Which product categories are hardest to advertise with a single global campaign?","Should a Pakistani brand expanding to the GCC hire a global network agency or a local specialist?"]
+});
+tabs(app,[
+ {label:'1 · Standardize-or-adapt scorer', build(el){ const c=card('Rate your campaign context (0–10)'); const gauge=h('div'), out=h('div');
+  const F=[['Consumer needs are similar across markets',6,1],['Product is used the same way everywhere',6,1],['Brand already has a global image',5,1],['Target segment is global (e.g. teens, business travellers)',5,1],['Pressure to cut creative costs',5,1],['Cultural distance between markets',5,-1],['Differences in advertising regulation',4,-1],['Language/literacy differences',5,-1],['Differences in media availability',4,-1]];
+  const sl=F.map(([l,v])=>slider({label:l,min:0,max:10,value:v,oninput:calc}));
+  const idx=stat('Standardization index');
+  c.append(h('div',{class:'grid2'},h('div',null,sl),h('div',null,idx,gauge,out))); el.append(c);
+  function calc(){ if(!sl[F.length-1]) return; let t=0; F.forEach((f,i)=>{ t+= f[2]>0? sl[i].get() : 10-sl[i].get(); }); const v=t/(F.length*10)*100; idx.set(fmt(v)+'/100');
+    clear(gauge); const W=320,sv=s('svg',{viewBox:`0 0 ${W} 60`,width:'100%',role:'img'});
+    [['--c5','Adapt'],['--c2','Pattern'],['--c3','Standardize']].forEach(([col,l],i)=>{ sv.append(s('rect',{x:i*W/3,y:10,width:W/3-2,height:18,fill:cssVar(col),'fill-opacity':.35,rx:4}),s('text',{x:i*W/3+W/6,y:48,'text-anchor':'middle','font-size':12},l)); });
+    sv.append(s('polygon',{points:`${v/100*W-7},4 ${v/100*W+7},4 ${v/100*W},16`,fill:cssVar('--text')})); gauge.append(sv);
+    clear(out); out.append(fb('info',v>=65?'<b>Standardize.</b> Run one global creative with translation only; centralise production to cut cost and build a consistent image.':v>=40?'<b>Pattern standardization.</b> Keep the global strategy, positioning and key visual, but localise language, models, settings and humour.':'<b>Adapt.</b> Brief local teams/agencies to create market-specific campaigns around a shared brand positioning.')); }
+  calc();
+ }},
+ {label:'2 · Agency selector', build(el){ const c=card('Choose an agency model for a multi-country launch'); el.append(c);
+  weighted(c,{criteria:[{name:'Coverage of many markets',weight:7},{name:'Local cultural insight',weight:6},{name:'Creative consistency',weight:6},{name:'Low cost',weight:4},{name:'Research & data capability',weight:5},{name:'Speed & flexibility',weight:4}],
+   options:[{name:'Global agency network',scores:[5,3,5,2,5,3]},{name:'Local independent agencies per country',scores:[2,5,2,4,2,4]},{name:'In-house agency + local production partners',scores:[3,3,4,5,3,5]},{name:'Regional hub agency (e.g. Dubai for MENA)',scores:[4,4,4,3,3,4]}],
+   explain:n=>({'Global agency network':'One team, consistent creative and world-wide coverage — at premium fees.','Local independent agencies per country':'Deep local insight, but hard to keep the brand consistent.','In-house agency + local production partners':'Control and speed at lower cost; needs strong internal talent.','Regional hub agency (e.g. Dubai for MENA)':'A middle path for a regional (regiocentric) strategy.'})[n]});
+ }},
+ {label:'3 · Concept check', build(el){ const c=card('Global advertising'); el.append(c);
+  quiz(c,[
+   {q:'Using one global creative concept but local actors, language and settings is…',options:['Full standardization','Pattern standardization','Full adaptation','Product invention'],answer:1,explain:'Global strategy, local execution.'},
+   {q:'Which factor most favours standardized advertising?',options:['Large cultural distance','Different ad laws','A global target segment with similar needs','Low literacy'],answer:2,explain:'Universal needs and global segments support one message.'},
+   {q:'WPP, Omnicom and Publicis are examples of…',options:['Media owners','Advertising holding companies','Research firms','Retailers'],answer:1,explain:'They own many agency networks.'},
+   {q:'A key benefit of standardization is…',options:['Perfect cultural fit','Cost savings and a consistent global image','Legal compliance in every country','No need for translation'],answer:1,explain:'Economies of scale in creative and a unified image.'}
+  ]);
+ }}
+]);
+</script></body></html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,stat,fb,fmt,clear,radar,line,tabs,selectBox,quiz}=Lab;
+const app=page({n:8,
+  primer:[
+   "<b>Hofstede’s cultural typology</b> scores countries on dimensions: <b>Power Distance</b> (acceptance of unequal power), <b>Individualism</b> vs collectivism, <b>Masculinity</b> (achievement vs caring), <b>Uncertainty Avoidance</b> (discomfort with ambiguity), <b>Long-Term Orientation</b> and <b>Indulgence</b>.",
+   "The <b>Self-Reference Criterion (SRC)</b> is the unconscious reference to one’s own cultural values when judging another culture. Lee’s four-step fix: define the problem in home-culture terms; define it in host-culture terms; isolate the SRC influence; redefine the problem without it.",
+   "<b>Diffusion theory</b> (Rogers): an innovation spreads through the <b>adoption process</b> (awareness → interest → evaluation → trial → adoption) and across <b>adopter categories</b> (innovators 2.5%, early adopters 13.5%, early majority 34%, late majority 34%, laggards 16%).",
+   "Adoption speed depends on five <b>characteristics of innovations</b>: relative advantage, compatibility, complexity (slows adoption), divisibility/trialability and communicability/observability."
+  ],
+  discussion:["Using the comparator, name two Hofstede gaps between Pakistan and a country you would export to, and how each should change your marketing.","Describe an example of the self-reference criterion causing a marketing mistake.","Why did mobile money spread faster in some developing markets than credit cards ever did? Use the five characteristics."]
+});
+const D=['Power distance','Individualism','Masculinity','Uncertainty avoid.','Long-term orient.','Indulgence'];
+const H={ 'Pakistan':[55,14,50,70,50,0],'United States':[40,91,62,46,26,68],'United Kingdom':[35,89,66,35,51,69],'Germany':[35,67,66,65,83,40],'China':[80,20,66,30,87,24],'Japan':[54,46,95,92,88,42],'India':[77,48,56,40,51,26],'Saudi Arabia':[95,25,60,80,36,52],'Türkiye':[66,37,45,85,46,49],'Bangladesh':[80,20,55,60,47,20],'Sweden':[31,71,5,29,53,78],'Malaysia':[100,26,50,36,41,57]};
+const TIP=[
+ ['Low PD: egalitarian messages, challenge authority, ask customers’ opinions.','High PD: status symbols, expert/elder endorsement, respect hierarchy in B2B selling.'],
+ ['Collectivist: family/group benefits, loyalty, word of mouth and relationships.','Individualist: personal achievement, self-expression, “be yourself” messaging.'],
+ ['Feminine: caring, quality of life, modesty; avoid aggressive comparison ads.','Masculine: success, winning, performance and competition themes.'],
+ ['Low UA: novelty, risk-taking, trial of new brands.','High UA: guarantees, expert proof, detailed info, trusted established brands.'],
+ ['Short-term: quick results, promotions, tradition.','Long-term: saving, investment, durability, future benefits.'],
+ ['Restrained: modest, duty-focused, functional appeals.','Indulgent: fun, leisure, enjoyment appeals.']];
+tabs(app,[
+ {label:'1 · Hofstede comparator', build(el){ const c=card('Compare two countries'); const r=h('div'), tbl=h('div');
+   const names=Object.keys(H).map(n=>[n,n]);
+   const a=selectBox({label:'Home country',options:names,value:'Pakistan',onchange:calc}), b=selectBox({label:'Target market',options:names,value:'Germany',onchange:calc});
+   c.append(h('div',{class:'grid2'},a,b),h('div',{class:'grid2'},r,tbl),h('p',{class:'small muted'},'Scores are Hofstede’s published country scores (0–100+, capped at 100 in the chart). Some scores have since been revised — see hofstede-insights / geerthofstede.com for current values.')); el.append(c);
+   function calc(){ const A=H[a.get()],B=H[b.get()];
+     radar(r,D,[{name:a.get(),values:A},{name:b.get(),values:B}],{max:100});
+     clear(tbl); const rows=D.map((d,i)=>({d,i,gap:B[i]-A[i]})).sort((x,y)=>Math.abs(y.gap)-Math.abs(x.gap));
+     tbl.append(h('h3',null,'Biggest gaps & what they mean for '+b.get()), ...rows.slice(0,3).map(x=>fb(Math.abs(x.gap)>=25?'warn':'info',`<b>${x.d}: ${A[x.i]} → ${B[x.i]}</b> (${x.gap>0?'+':''}${x.gap}). ${TIP[x.i][B[x.i]>=50?1:0]}`)));
+   }
+   calc();
+ }},
+ {label:'2 · Diffusion simulator', build(el){ const c=card('Bass diffusion model — launch a new product'); const ch=h('div'), out=h('div');
+   const ch5=[['Relative advantage',4],['Compatibility with values/habits',3],['Simplicity (low complexity)',3],['Trialability / divisibility',3],['Observability / communicability',4]].map(([l,v])=>slider({label:l,min:1,max:5,value:v,oninput:calc}));
+   const p=slider({label:'External influence p (advertising, media)',min:0.001,max:0.06,step:0.001,value:0.01,fmt:v=>v.toFixed(3),oninput:calc});
+   const m=slider({label:'Market potential m (thousand adopters)',min:100,max:5000,step:100,value:1000,fmt:v=>fmt(v)+'k',oninput:calc});
+   const S=[stat('Imitation q (from characteristics)'),stat('Peak sales period'),stat('Years to 50% adoption')];
+   c.append(h('div',{class:'grid2'},h('div',null,h('h3',null,'Rogers’ five characteristics (1–5)'),ch5),h('div',null,p,m,h('div',{class:'grid3'},S))),ch,out); el.append(c);
+   function calc(){ if(!m) return; const avg=ch5.reduce((a,s)=>a+s.get(),0)/5; const q=0.1+(avg-1)/4*0.5, pp=p.get(), M=m.get();
+     let N=0; const cum=[[0,0]], per=[[0,0]]; let peak=0,peakT=0,half=null;
+     for(let t=1;t<=20;t++){ const n=(pp+q*N/M)*(M-N); N+=n; cum.push([t,N]); per.push([t,n]); if(n>peak){peak=n;peakT=t;} if(half==null&&N>=M/2) half=t; }
+     S[0].set(q.toFixed(2)); S[1].set('Year '+peakT); S[2].set(half?half+' yrs':'> 20 yrs');
+     line(ch,[{name:'New adopters per year (k)',points:per},{name:'Cumulative adopters (k)',points:cum}],{xlabel:'Years after launch',xticks:10,marks:[{x:peakT,label:'peak'}]});
+     clear(out); out.append(fb(avg>=3.8?'good':avg<=2.4?'bad':'info',avg>=3.8?'Strong characteristics — word of mouth (q) drives fast, S-shaped take-off.':avg<=2.4?'Weak characteristics — adoption will be slow; improve compatibility, simplify, or offer trial sizes.':'Moderate diffusion. Early-adopter targeting and trial offers can speed take-off.'));
+   }
+   calc();
+ }},
+ {label:'3 · SRC check', build(el){ const c=card('Spot the self-reference criterion'); el.append(c);
+   quiz(c,[
+    {q:'A US firm launches cake mixes in Japan assuming every home has an oven, as in the US. Sales flop. This is an example of…',options:['Ethnocentrism only','The self-reference criterion','Good market research','Trade diversion'],answer:1,explain:'Managers unconsciously assumed home-country conditions applied abroad.'},
+    {q:'Lee’s first step to eliminate SRC is to…',options:['Define the problem in host-country terms','Define the problem in home-country cultural traits, habits and norms','Hire a local agency','Translate the ad'],answer:1,explain:'Step 1: home-culture terms; Step 2: host-culture terms; Step 3: isolate the SRC; Step 4: redefine the problem.'},
+    {q:'Which innovation characteristic SLOWS adoption?',options:['Relative advantage','Compatibility','Complexity','Observability'],answer:2,explain:'Complex products need more learning, so they diffuse more slowly.'},
+    {q:'The first 2.5% of adopters are called…',options:['Early adopters','Innovators','Early majority','Laggards'],answer:1,explain:'Innovators 2.5%, early adopters 13.5%, early majority 34%, late majority 34%, laggards 16%.'},
+    {q:'A high Uncertainty Avoidance market is best approached with…',options:['Edgy, ambiguous ads','Guarantees, expert endorsements and detailed information','No warranty to cut cost','Constant brand changes'],answer:1,explain:'High-UA consumers seek reassurance and reduced risk.'}
+   ]);
+ }}
+]);
+</script></body></html>

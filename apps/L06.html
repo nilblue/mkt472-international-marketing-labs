@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,fb,clear,tabs,quiz,selectBox}=Lab;
+const app=page({n:6,
+  primer:[
+   "Regional integration happens on every continent, at different depths of the integration ladder (FTA → customs union → common market → economic union).",
+   "<b>The Americas:</b> USMCA (formerly NAFTA), Mercosur, the Andean Community, CAFTA-DR. <b>Asia-Pacific:</b> ASEAN/AFTA, RCEP, CPTPP, SAARC/SAFTA. <b>Europe:</b> the EU and EFTA. <b>Middle East:</b> the GCC. <b>Africa:</b> AfCFTA plus sub-regional blocs such as ECOWAS, SADC and the EAC.",
+   "For marketers, blocs change the <b>size of the addressable market</b>, <b>rules of origin</b>, where to put a regional hub, and whether a product can be sold on one set of standards.",
+   "Membership and details change over time — always check the bloc’s official site before relying on the numbers in an assignment."
+  ],
+  discussion:["Which bloc offers the biggest opportunity for Pakistani exporters, and why?","SAFTA has delivered far less trade than ASEAN. What political and economic reasons explain the gap?","If you were locating a regional warehouse for the GCC, which country would you choose and why?"]
+});
+const B=[
+ {n:'European Union (EU)',r:'Europe',lvl:'Economic union',y:'1957 (Treaty of Rome) / 1993 (Maastricht)',m:'27 member states; most use the euro',note:'Single market for goods, services, capital and people; common trade policy. Pakistan exports under GSP+ preferences in return for commitments on human rights, labour and environmental conventions.'},
+ {n:'EFTA',r:'Europe',lvl:'Free trade area',y:'1960',m:'Iceland, Liechtenstein, Norway, Switzerland',note:'Three members join the EU single market through the European Economic Area (EEA).'},
+ {n:'USMCA',r:'Americas',lvl:'Free trade area',y:'2020 (replaced NAFTA, 1994)',m:'USA, Canada, Mexico',note:'Stricter automotive rules of origin than NAFTA; digital trade and labour chapters.'},
+ {n:'Mercosur',r:'Americas',lvl:'Customs union (incomplete)',y:'1991',m:'Argentina, Brazil, Paraguay, Uruguay, Bolivia (Venezuela suspended)',note:'Common external tariff with many exceptions; long-running trade talks with the EU.'},
+ {n:'Andean Community (CAN)',r:'Americas',lvl:'Customs union',y:'1969',m:'Bolivia, Colombia, Ecuador, Peru',note:'One of the oldest Latin American integration schemes.'},
+ {n:'ASEAN / AFTA',r:'Asia-Pacific',lvl:'Free trade area → economic community',y:'1967 (AFTA 1992, AEC 2015)',m:'10 founding-era members, with Timor-Leste admitted as the 11th',note:'Near-zero internal tariffs; ASEAN Economic Community aims at a single market and production base.'},
+ {n:'RCEP',r:'Asia-Pacific',lvl:'Free trade area',y:'Signed 2020, in force 2022',m:'15 economies: ASEAN + China, Japan, South Korea, Australia, New Zealand',note:'The world’s largest FTA by GDP; common rules of origin across Asia’s supply chains.'},
+ {n:'CPTPP',r:'Asia-Pacific',lvl:'Free trade area',y:'2018',m:'Pacific-rim economies incl. Japan, Canada, Mexico, Vietnam, Australia; the UK joined in 2024',note:'Deep rules on e-commerce, SOEs and IP.'},
+ {n:'SAARC / SAFTA',r:'South Asia',lvl:'Free trade area (limited)',y:'SAARC 1985; SAFTA in force 2006',m:'Afghanistan, Bangladesh, Bhutan, India, Maldives, Nepal, Pakistan, Sri Lanka',note:'Long sensitive lists and political tension keep intra-regional trade low.'},
+ {n:'ECO',r:'South & Central Asia',lvl:'Cooperation / preferential trade',y:'1985',m:'10 members incl. Pakistan, Iran, Türkiye and Central Asian states',note:'ECOTA trade agreement signed but largely unimplemented; focus on connectivity.'},
+ {n:'Gulf Cooperation Council (GCC)',r:'Middle East',lvl:'Customs union / common market',y:'1981 (customs union 2003)',m:'Saudi Arabia, UAE, Kuwait, Qatar, Bahrain, Oman',note:'Home to millions of Pakistani workers; major source of remittances and a key export market. Pakistan–GCC FTA negotiations have been under way.'},
+ {n:'AfCFTA',r:'Africa',lvl:'Free trade area',y:'Agreement in force 2019; trading from 2021',m:'54 of 55 AU countries signed',note:'Largest FTA by number of countries; aims to boost low intra-African trade.'},
+ {n:'ECOWAS',r:'Africa',lvl:'Customs union',y:'1975',m:'West African states (membership has changed recently)',note:'Common external tariff and free movement protocol.'},
+ {n:'Eurasian Economic Union (EAEU)',r:'Europe / Central Asia',lvl:'Economic union',y:'2015',m:'Russia, Belarus, Kazakhstan, Kyrgyzstan, Armenia',note:'Customs union with common market aspirations.'}
+];
+tabs(app,[
+ {label:'1 · Explore the blocs', build(el){
+   const c=card('Regional bloc explorer'); const list=h('div',{class:'grid2'});
+   const regions=['All',...new Set(B.map(b=>b.r))];
+   const sel=selectBox({label:'Filter by region',options:regions.map(r=>[r,r]),value:'All',onchange:render});
+   c.append(sel,list); el.append(c);
+   function render(){ clear(list); B.filter(b=>sel.get()==='All'||b.r===sel.get()).forEach(b=>list.append(h('div',{class:'stat'},
+     h('div',{class:'l'},b.r+' · '+b.lvl), h('h3',{style:{margin:'4px 0'}},b.n), h('div',{class:'small'},h('b',null,'Established: '),b.y), h('div',{class:'small'},h('b',null,'Members: '),b.m), h('p',{class:'small muted',style:{margin:'6px 0 0'}},b.note)))); }
+   render();
+ }},
+ {label:'2 · Test yourself', build(el){ const c=card('Match the bloc'); el.append(c);
+   quiz(c,[
+    {q:'Which agreement replaced NAFTA?',options:['CAFTA-DR','USMCA','Mercosur','CPTPP'],answer:1,explain:'USMCA took effect in 2020.'},
+    {q:'Which bloc is a customs union of six Gulf states?',options:['ECO','GCC','OPEC','Arab League'],answer:1,explain:'The Gulf Cooperation Council launched its customs union in 2003.'},
+    {q:'Which is the world’s largest FTA by combined GDP?',options:['AfCFTA','SAFTA','RCEP','EFTA'],answer:2,explain:'RCEP links ASEAN with China, Japan, Korea, Australia and New Zealand.'},
+    {q:'The largest FTA by number of participating countries is…',options:['AfCFTA','EU','ASEAN','Mercosur'],answer:0,explain:'AfCFTA covers almost every African Union country.'},
+    {q:'Pakistan is a member of which of these?',options:['ASEAN','SAARC/SAFTA','Mercosur','EFTA'],answer:1,explain:'Pakistan is a SAARC founder and a SAFTA party (also ECO).'},
+    {q:'Which bloc is the most deeply integrated (economic union with a common currency for most members)?',options:['EU','USMCA','GCC','ASEAN'],answer:0,explain:'The EU has a single market, common institutions and the euro.'},
+    {q:'Mercosur is best described as…',options:['A free trade area','An incomplete customs union','An economic union','A political alliance only'],answer:1,explain:'It has a common external tariff, but with many national exceptions.'}
+   ]);
+ }}
+]);
+</script></body></html>

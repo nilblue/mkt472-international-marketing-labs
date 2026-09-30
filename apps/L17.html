@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,stat,fb,fmt,money,clear,line,tabs,quiz,weighted}=Lab;
+const app=page({n:17,
+  primer:[
+   "Market-entry options differ in <b>control, risk, resource commitment and potential return</b>: exporting → licensing/franchising → contract manufacturing → joint venture → wholly owned subsidiary (greenfield or acquisition).",
+   "<b>Licensing</b>: a licensor lets a licensee use patents, trademarks, know-how or trade secrets for a <b>royalty</b>. Low investment and fast, but limited control, modest income, and the risk of creating a future competitor.",
+   "<b>Franchising</b> adds a full business system (brand, operations manual, training) — e.g. fast-food chains in Pakistan.",
+   "<b>Investment</b>: a <b>joint venture</b> shares ownership, risk and knowledge with a local partner (sometimes required by host governments), but partners can clash; an <b>equity stake</b> or <b>acquisition</b> buys into an existing firm; a <b>wholly owned subsidiary</b> gives full control and profits at the highest risk."
+  ],
+  discussion:["Which entry mode did a foreign brand you know use to enter Pakistan? Was it a good choice?","Why do some governments require joint ventures with local partners?","When is licensing a trap rather than a shortcut?"]
+});
+tabs(app,[
+ {label:'1 · Entry mode selector', build(el){ const c=card('Set your priorities for entering a new market'); el.append(c);
+  weighted(c,{criteria:[{name:'Control over marketing & quality',weight:7},{name:'Low risk & investment',weight:6},{name:'Speed of entry',weight:5},{name:'Profit potential',weight:6},{name:'Local market knowledge',weight:4},{name:'Protection of technology/IP',weight:5}],
+   options:[{name:'Exporting (via distributor)',scores:[2,5,5,2,2,4]},{name:'Licensing',scores:[1,5,4,1,4,1]},{name:'Franchising',scores:[3,4,4,3,4,2]},{name:'Contract manufacturing',scores:[3,4,3,3,3,2]},{name:'Joint venture',scores:[3,3,3,4,5,3]},{name:'Wholly owned subsidiary',scores:[5,1,2,5,2,5]}],
+   explain:n=>({'Exporting (via distributor)':'Low-commitment way to test demand; the distributor controls the customer.','Licensing':'Fast, cheap, but watch for a licensee who becomes a competitor.','Franchising':'Scales a proven system quickly with local investors’ capital.','Contract manufacturing':'Local production without owning plants; you keep marketing control.','Joint venture':'Shares risk and gains local knowledge; choose the partner carefully.','Wholly owned subsidiary':'Maximum control and profit — and maximum exposure to risk.'})[n]});
+ }},
+ {label:'2 · Licensing vs JV cash flows', build(el){ const c=card('Compare 10-year cumulative profit'); const ch=h('div'), out=h('div');
+  const sales=slider({label:'Year-1 market sales (US$ m)',min:1,max:50,value:10,oninput:calc});
+  const g=slider({label:'Annual market growth',min:0,max:30,value:10,fmt:v=>v+'%',oninput:calc});
+  const roy=slider({label:'Licensing royalty rate',min:1,max:10,step:0.5,value:5,fmt:v=>v+'%',oninput:calc});
+  const inv=slider({label:'JV: your share of upfront investment (US$ m)',min:0,max:30,value:8,oninput:calc});
+  const own=slider({label:'JV: your equity share',min:10,max:90,value:50,fmt:v=>v+'%',oninput:calc});
+  const mg=slider({label:'JV operating margin',min:2,max:30,value:12,fmt:v=>v+'%',oninput:calc});
+  const S=[stat('Licensing: 10-yr total'),stat('JV: 10-yr total'),stat('JV break-even year')];
+  c.append(h('div',{class:'grid2'},h('div',null,sales,g,roy),h('div',null,inv,own,mg)),h('div',{class:'grid3'},S),ch,out); el.append(c);
+  function calc(){ if(!mg) return; let L=0,J=-inv.get(),be=null; const pl=[[0,0]], pj=[[0,J]];
+    for(let y=1;y<=10;y++){ const sv=sales.get()*Math.pow(1+g.get()/100,y-1); L+=sv*roy.get()/100; J+=sv*mg.get()/100*own.get()/100; pl.push([y,L]); pj.push([y,J]); if(be==null&&J>=0) be=y; }
+    S[0].set(money(L,1)+'m'); S[1].set(money(J,1)+'m'); S[2].set(be?'Year '+be:'> 10 yrs');
+    line(ch,[{name:'Licensing (royalties)',points:pl},{name:'Joint venture (profit share − investment)',points:pj}],{xlabel:'Year',xticks:10,yfmt:v=>'$'+fmt(v,0)+'m'});
+    clear(out); out.append(fb(J>L?'good':'info',J>L?`The JV earns <b>${money(J-L,1)}m more</b> over 10 years — but only if the partnership works and the market grows as assumed.`:`Licensing earns more (or similar) with almost no capital at risk. The JV only wins with higher growth, margins or equity share.`)); }
+  calc();
+ }},
+ {label:'3 · Concept check', build(el){ const c=card('Entry strategies'); el.append(c);
+  quiz(c,[
+   {q:'Which mode gives the MOST control and the MOST risk?',options:['Licensing','Exporting','Joint venture','Wholly owned subsidiary'],answer:3,explain:'Full ownership = full control, full profit and full exposure.'},
+   {q:'A key disadvantage of licensing is…',options:['Very high investment','The licensee may become a competitor','Slow entry','Full exposure to political risk'],answer:1,explain:'Know-how transferred today can be used against you tomorrow.'},
+   {q:'Payments to a licensor for using its trademark are called…',options:['Dividends','Royalties','Tariffs','Transfer prices'],answer:1,explain:'Royalties are usually a % of sales.'},
+   {q:'Building a brand-new plant abroad from scratch is a…',options:['Greenfield investment','Brownfield acquisition','Licensing deal','Contract manufacturing'],answer:0,explain:'Greenfield = new facility; acquisition = buying an existing firm.'},
+   {q:'A common reason JVs fail is…',options:['Too much local knowledge','Conflicts between partners over control, strategy or profits','Low risk','Too little investment by both'],answer:1,explain:'Partner conflict is the classic JV failure mode.'}
+  ]);
+ }}
+]);
+</script></body></html>

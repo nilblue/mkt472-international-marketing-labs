@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,s,page,card,slider,fb,fmt,clear,tabs,quiz,classify,cssVar}=Lab;
+const app=page({n:31,
+  primer:[
+   "<b>Leadership</b> in global marketing means building a global vision, developing managers with global mindsets, and valuing ideas from every market. Top management teams are increasingly <b>multinational</b>; the leader’s job is to balance global efficiency, local responsiveness and worldwide learning.",
+   "Organisational evolution: export department → <b>international division</b> → <b>geographic (area) structure</b> or <b>global product division</b> structure → <b>global matrix</b>. The <b>Stopford–Wells</b> model links the choice to <b>foreign sales as a % of total sales</b> and <b>foreign product diversity</b>.",
+   "A <b>matrix</b> gives managers two bosses (e.g. product and geography). It can balance global and local needs but is complex and slow if roles are unclear.",
+   "The <b>transnational</b> firm aims to be globally efficient, locally responsive and a learning organisation at the same time — a ‘matrix in the mind’ rather than only on the chart."
+  ],
+  discussion:["Which structure suits a Pakistani firm that earns 70% of revenue abroad from a single product line?","What makes matrix structures fail, and how can leaders prevent it?","How should a global company choose its top leaders — by nationality or by global mindset?"]
+});
+tabs(app,[
+ {label:'1 · Structure selector', build(el){ const c=card('Locate your company on the Stopford–Wells model'); const g=h('div'), out=h('div');
+  const fs=slider({label:'Foreign sales as % of total sales',min:0,max:100,value:25,fmt:v=>v+'%',oninput:calc});
+  const pd=slider({label:'Foreign product diversity (number of product lines sold abroad)',min:1,max:20,value:3,oninput:calc});
+  c.append(h('div',{class:'grid2'},h('div',null,fs,pd,out),g)); el.append(c);
+  const R=[['International division','A separate division handles all foreign business. Suits early internationalisation with limited sales and few products abroad.'],['Area (geographic) structure','Regional heads (e.g. Middle East, Europe) run all products in their region. Suits large foreign sales with a narrow product line — local responsiveness.'],['Worldwide product division','Each product division runs its business worldwide. Suits many diverse products with lower foreign dependence — global efficiency per product.'],['Global matrix','Managers report on both product and geographic dimensions. Suits high foreign sales AND high diversity — balancing global and local demands.']];
+  function calc(){ if(!pd) return; const x=fs.get(), y=pd.get(); const hiX=x>=40, hiY=y>=8; const q=hiX&&hiY?3:hiX?1:hiY?2:0;
+    clear(g); const W=460,H=360,m=46; const X=v=>m+v/100*(W-m-10), Y=v=>H-m-(v-1)/19*(H-m-10);
+    const sv=s('svg',{viewBox:`0 0 ${W} ${H}`,width:'100%',style:'max-width:500px;display:block;margin:auto',role:'img'});
+    const zones=[[0,40,1,8,0,'--c1'],[40,100,1,8,1,'--c3'],[0,40,8,20,2,'--c2'],[40,100,8,20,3,'--c4']];
+    zones.forEach(([x1,x2,y1,y2,i,col])=>{ sv.append(s('rect',{x:X(x1),y:Y(y2),width:X(x2)-X(x1),height:Y(y1)-Y(y2),fill:cssVar(col),'fill-opacity':i===q?.28:.1,stroke:cssVar('--border')}), s('text',{x:(X(x1)+X(x2))/2,y:(Y(y1)+Y(y2))/2,'text-anchor':'middle','font-size':12,'font-weight':i===q?700:500},R[i][0])); });
+    sv.append(s('circle',{cx:X(x),cy:Y(y),r:9,fill:cssVar('--accent2'),stroke:cssVar('--surface'),'stroke-width':2}));
+    sv.append(s('text',{x:(W+m)/2,y:H-10,'text-anchor':'middle','font-size':12,fill:cssVar('--muted')},'Foreign sales as % of total →'),s('text',{x:14,y:(H-m)/2,'text-anchor':'middle','font-size':12,fill:cssVar('--muted'),transform:`rotate(-90 14 ${(H-m)/2})`},'Foreign product diversity →'));
+    g.append(sv); clear(out); out.append(fb('good',`<b>${R[q][0]}.</b> ${R[q][1]}`)); }
+  calc();
+ }},
+ {label:'2 · Match the structure', build(el){ const c=card('Which structure has this feature?'); el.append(c);
+  classify(c,{bins:['International division','Area / geographic','Global product division','Matrix'],items:[
+   {text:'All foreign operations report to one “international” VP',bin:0,why:'Classic early-stage structure.'},{text:'Domestic business stays separate from foreign business',bin:0,why:'Can create a home-vs-abroad split in thinking.'},
+   {text:'A Middle East head runs every product line in the region',bin:1,why:'Geography is the primary axis.'},{text:'Strong local responsiveness, risk of duplicating product development',bin:1,why:'Area structures replicate functions in each region.'},
+   {text:'The Beverages division manages beverages in every country',bin:2,why:'Product is the primary axis worldwide.'},{text:'Global efficiency in each product line; weaker regional coordination',bin:2,why:'Good for diverse, technical product portfolios.'},
+   {text:'Country managers report to both a regional head and a product head',bin:3,why:'Dual reporting lines.'},{text:'Balances global and local, but can be slow and conflict-prone',bin:3,why:'Classic matrix trade-off.'}
+  ]});
+ }},
+ {label:'3 · Leadership check', build(el){ const c=card('Leadership & organization'); el.append(c);
+  quiz(c,[
+   {q:'In the Stopford–Wells model, high foreign sales with low product diversity suggest…',options:['International division','Area structure','Worldwide product division','No change'],answer:1,explain:'Geographic focus fits large foreign sales from a narrow product range.'},
+   {q:'A key challenge of the matrix structure is…',options:['Too little coordination','Dual reporting lines causing conflict and slow decisions','No local responsiveness','No global efficiency'],answer:1,explain:'Two bosses can mean ambiguity unless roles are clear.'},
+   {q:'The transnational organisation aims for…',options:['Only cost efficiency','Global efficiency, local responsiveness and worldwide learning together','Only local responsiveness','Only exporting'],answer:1,explain:'Bartlett and Ghoshal’s transnational solution.'},
+   {q:'A “global mindset” in leadership means…',options:['Preferring home-country managers','Openness to ideas and talent from any market and the ability to balance global and local needs','Standardizing everything','Avoiding foreign markets'],answer:1,explain:'It links back to the geocentric orientation from Lecture 2.'}
+  ]);
+ }}
+]);
+</script></body></html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,s,page,card,slider,stat,fb,fmt,money,clear,bars,tabs,quiz,cssVar}=Lab;
+const app=page({n:21,
+  primer:[
+   "Global pricing decisions balance <b>costs</b>, <b>competition</b>, <b>customer value</b> and <b>environmental influences</b> — currency fluctuations, inflation, government controls/subsidies and competitor behaviour.",
+   "<b>Pricing objectives</b> include market skimming, market penetration, market holding, cost-plus pricing and target-return pricing.",
+   "<b>Incoterms® 2020</b> (International Chamber of Commerce) define who pays for what and where <b>risk</b> passes from seller to buyer. Any-mode terms: <b>EXW, FCA, CPT, CIP, DAP, DPU, DDP</b>. Sea/inland-waterway terms: <b>FAS, FOB, CFR, CIF</b>.",
+   "Key trap: under the <b>C-terms</b> (CFR, CIF, CPT, CIP) the seller pays main freight but <b>risk passes at shipment</b> in the origin country. Under <b>D-terms</b> the seller bears risk to the destination.",
+   "<b>Price escalation</b>: the extra costs of exporting (freight, insurance, duties, longer channels, VAT charged on a higher base) can make a product sell abroad at two to three times its home price."
+  ],
+  discussion:["A Pakistani exporter quotes CIF Hamburg. The ship is damaged in the Suez Canal. Who bears the loss, and who claims on the insurance?","Why do experienced exporters prefer FCA to FOB for containerised cargo?","List three ways to reduce price escalation in a foreign market."]
+});
+const STG=['Seller’s premises','Export clearance','Handed to carrier at origin','Loaded on board ship','Main carriage (freight)','Arrived at destination','Unloaded at destination','Import clearance & duties','Buyer’s premises'];
+// cost: seller pays stages < cost; risk: seller bears risk for stages < risk
+const IT={EXW:{c:0,r:0,m:'Any mode',d:'Ex Works — buyer collects at seller’s premises and does export clearance. Minimum obligation for the seller.'},
+ FCA:{c:3,r:3,m:'Any mode',d:'Free Carrier — seller clears export and hands goods to the buyer’s carrier. Recommended for containers.'},
+ FAS:{c:3,r:3,m:'Sea',d:'Free Alongside Ship — goods placed alongside the vessel at the port of shipment.'},
+ FOB:{c:4,r:4,m:'Sea',d:'Free On Board — risk passes once goods are on board the vessel at the port of shipment.'},
+ CFR:{c:5,r:4,m:'Sea',d:'Cost and Freight — seller pays freight to destination port, but risk passes on board at origin.'},
+ CIF:{c:5,r:4,m:'Sea',d:'Cost, Insurance and Freight — as CFR plus minimum insurance (ICC C) for the buyer’s benefit.'},
+ CPT:{c:5,r:3,m:'Any mode',d:'Carriage Paid To — seller pays carriage; risk passes when handed to the first carrier.'},
+ CIP:{c:5,r:3,m:'Any mode',d:'Carriage and Insurance Paid To — as CPT plus higher insurance cover (ICC A) under Incoterms 2020.'},
+ DAP:{c:6,r:6,m:'Any mode',d:'Delivered at Place — seller bears cost and risk to the named destination, ready for unloading.'},
+ DPU:{c:7,r:7,m:'Any mode',d:'Delivered at Place Unloaded — as DAP but the seller also unloads (replaced DAT in 2020).'},
+ DDP:{c:8,r:8,m:'Any mode',d:'Delivered Duty Paid — seller also clears import and pays duties/taxes. Maximum obligation for the seller (unloading at the named place is normally the buyer’s job).'}};
+tabs(app,[
+ {label:'1 · Incoterms explorer', build(el){ const c=card('Pick an Incoterm'); const btns=h('div',{class:'tabs'}), vis=h('div'), out=h('div');
+  let cur='FOB';
+  Object.keys(IT).forEach(k=>btns.append(h('button',{onclick:()=>{cur=k;draw();}},k)));
+  c.append(btns,vis,out); el.append(c);
+  function draw(){ [...btns.children].forEach(b=>b.classList.toggle('on',b.textContent===cur));
+    const t=IT[cur]; clear(vis); const W=900,rowY=[70,140],cw=(W-150)/STG.length;
+    const sv=s('svg',{viewBox:`0 0 ${W} 250`,width:'100%',role:'img'});
+    STG.forEach((st,i)=>{ const x=150+i*cw;
+      sv.append(s('text',{x:x+cw/2,y:20,'text-anchor':'middle','font-size':10.5,fill:cssVar('--muted')},...wrap(st).map((ln,j)=>s('tspan',{x:x+cw/2,dy:j?12:0},ln))));
+      sv.append(s('rect',{x:x+2,y:rowY[0],width:cw-4,height:40,rx:6,fill:cssVar(i<t.c?'--c1':'--c2'),'fill-opacity':i<t.c?.9:.35}));
+      sv.append(s('rect',{x:x+2,y:rowY[1],width:cw-4,height:40,rx:6,fill:cssVar(i<t.r?'--c1':'--c2'),'fill-opacity':i<t.r?.9:.35}));
+    });
+    sv.append(s('text',{x:140,y:rowY[0]+25,'text-anchor':'end','font-size':13,'font-weight':700},'Who pays cost'),s('text',{x:140,y:rowY[1]+25,'text-anchor':'end','font-size':13,'font-weight':700},'Who bears risk'));
+    const rx=150+t.r*cw; sv.append(s('line',{x1:rx,x2:rx,y1:60,y2:195,stroke:cssVar('--bad'),'stroke-width':3,'stroke-dasharray':'6 4'}),s('text',{x:rx,y:212,'text-anchor':'middle','font-size':12,fill:cssVar('--bad'),'font-weight':700},'risk passes here'));
+    sv.append(s('rect',{x:150,y:228,width:14,height:14,fill:cssVar('--c1')}),s('text',{x:170,y:240,'font-size':12},'Seller'),s('rect',{x:230,y:228,width:14,height:14,fill:cssVar('--c2'),'fill-opacity':.35}),s('text',{x:250,y:240,'font-size':12},'Buyer'));
+    vis.append(sv); clear(out);
+    out.append(fb('info',`<b>${cur} (${t.m}).</b> ${t.d}`));
+    if(t.c!==t.r) out.append(fb('warn',`<b>Split point:</b> the seller pays costs further than it bears risk — ${t.c-t.r} stage(s) where the buyer carries the risk of goods the seller has paid to ship.`));
+  }
+  function wrap(t){ const w=t.split(' '), L=[]; let l=''; w.forEach(x=>{ if((l+' '+x).trim().length>14){ L.push(l.trim()); l=x; } else l+=' '+x; }); L.push(l.trim()); return L; }
+  draw();
+ }},
+ {label:'2 · Price escalation', build(el){ const c=card('Domestic vs export price of a product that costs US$10 ex-works'); const chart=h('div'), out=h('div');
+  const V={}; const add=(k,l,v,min,max,f)=>V[k]=slider({label:l,min,max,step:min<1?0.5:1,value:v,fmt:f||(x=>x+'%'),oninput:calc});
+  const L=h('div',null,h('h3',null,'Export costs'),add('fr','Freight & insurance per unit (US$)',2,0,10,x=>'$'+x),add('duty','Import duty (on CIF)',20,0,60),add('imp','Importer margin',15,0,50),add('whs','Wholesaler margin',15,0,50));
+  const R=h('div',null,h('h3',null,'Common to both channels'),add('ret','Retailer margin',30,0,80),add('vat','VAT / sales tax',17,0,25),add('dws','Domestic channel: wholesaler margin',15,0,50),h('label',{class:'row small'},V.imp_on=h('input',{type:'checkbox',checked:true,onchange:calc}),'Export channel includes an importer (longer channel)'));
+  const S=[stat('Domestic retail price'),stat('Export retail price'),stat('Escalation')];
+  c.append(h('div',{class:'grid2'},L,R),h('div',{class:'grid3'},S),chart,out); el.append(c);
+  function calc(){ if(!V.dws) return; const v=k=>V[k].get()/ (k==='fr'?1:100);
+    const d0=10, dW=d0*(1+v('dws')), dR=dW*(1+v('ret')), dV=dR*(1+v('vat'));
+    const cif=d0+V.fr.get(), du=cif*(1+v('duty')), im=V.imp_on.checked?du*(1+v('imp')):du, wh=im*(1+v('whs')), rt=wh*(1+v('ret')), vt=rt*(1+v('vat'));
+    S[0].set(money(dV,2)); S[1].set(money(vt,2)); S[2].set('+'+fmt((vt/dV-1)*100)+'%');
+    bars(chart,[{label:'Ex-works',value:d0},{label:'CIF',value:cif},{label:'+ duty',value:du},{label:'+ importer',value:im},{label:'+ wholesaler',value:wh},{label:'+ retailer',value:rt},{label:'+ VAT (export)',value:vt,color:'--c5'},{label:'Domestic shelf price',value:dV,color:'--c3'}],{fmt:x=>money(x,2)});
+    clear(out); out.append(fb('warn',`Margins are percentages <b>of an ever-higher base</b>, so each step multiplies the escalation. Ways to fight it: shorten the channel, ship unassembled (CKD) to cut duty, re-classify under a lower HS code, produce locally, or use a free-trade zone.`)); }
+  calc();
+ }},
+ {label:'3 · Concept check', build(el){ const c=card('Incoterms & pricing'); el.append(c);
+  quiz(c,[
+   {q:'Under CIF, risk passes to the buyer…',options:['At the seller’s factory','When goods are on board the vessel at the port of shipment','At the destination port','At the buyer’s warehouse'],answer:1,explain:'The seller pays freight & insurance to destination, but risk transfers on board at origin.'},
+   {q:'Which term places the MAXIMUM obligation on the seller?',options:['EXW','FOB','CIF','DDP'],answer:3,explain:'Delivered Duty Paid — seller even pays import duties.'},
+   {q:'Which of these may be used ONLY for sea/inland waterway transport?',options:['FCA','CPT','FOB','DAP'],answer:2,explain:'FAS, FOB, CFR and CIF are sea/inland-waterway terms.'},
+   {q:'Setting a low price to gain market share quickly is…',options:['Skimming','Penetration pricing','Cost-plus pricing','Target return'],answer:1,explain:'Penetration pricing trades margin for volume and share.'},
+   {q:'Which Incoterm replaced DAT in Incoterms 2020?',options:['DPU','DAP','CIP','FCA'],answer:0,explain:'Delivered at Place Unloaded.'}
+  ]);
+ }}
+]);
+</script></body></html>

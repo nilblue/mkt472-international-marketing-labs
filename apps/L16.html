@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,stat,fb,fmt,money,clear,bars,tabs,quiz,sequence}=Lab;
+const app=page({n:16,
+  primer:[
+   "<b>Organizing for exporting</b>: in the manufacturer’s country, firms may use an in-house export department, an export management company, or export merchants/agents; in the market country, they sell direct to end users/retailers or through distributors and agents.",
+   "<b>Methods of payment</b>, from least to most risky for the exporter: <b>cash in advance</b> → <b>letter of credit (L/C)</b> → <b>documentary collection</b> (D/P sight draft, D/A time draft) → <b>open account</b>. Risk for the importer runs the opposite way.",
+   "A <b>letter of credit</b> is a bank’s promise to pay the exporter when compliant documents are presented. A <b>confirmed, irrevocable</b> L/C adds a second bank’s guarantee in the exporter’s country — valuable when the importer’s country or bank is risky.",
+   "<b>Trade financing</b> tools include pre-shipment export finance, export-credit insurance, factoring and forfaiting. <b>Global sourcing</b> decisions weigh factor costs, logistics, country infrastructure, political risk, market access and exchange rates."
+  ],
+  discussion:["A new buyer in a country with foreign-exchange shortages asks for 90-day open account terms. What would you offer instead, and why?","Why do so many L/C presentations get rejected for ‘discrepancies’, and how can exporters avoid that?","What factors should a global firm weigh before sourcing garments from Pakistan versus Bangladesh or Vietnam?"]
+});
+const M=[
+ {n:'Cash in advance',ex:1,im:10,cost:0,speed:'Before shipment'},
+ {n:'Confirmed irrevocable L/C',ex:2,im:6,cost:1.2,speed:'On document compliance'},
+ {n:'Unconfirmed L/C',ex:4,im:6,cost:0.6,speed:'On document compliance'},
+ {n:'Documentary collection (D/P)',ex:6,im:4,cost:0.3,speed:'When buyer pays to get documents'},
+ {n:'Documentary collection (D/A, 60 days)',ex:7,im:3,cost:0.3,speed:'At draft maturity'},
+ {n:'Open account (60 days)',ex:10,im:1,cost:0,speed:'Whenever buyer pays'}];
+tabs(app,[
+ {label:'1 · Choose a payment method', build(el){ const c=card('A foreign importer wants to buy surgical instruments from Sialkot'); const chart=h('div'), out=h('div');
+  const rel=slider({label:'Relationship & trust with the buyer',min:0,max:10,value:3,oninput:calc,hint:'0 = brand-new buyer, 10 = long, reliable history'});
+  const cr=slider({label:'Importer’s country risk (political & FX)',min:0,max:10,value:6,oninput:calc});
+  const comp=slider({label:'Competitive pressure (rivals offer easy terms)',min:0,max:10,value:5,oninput:calc});
+  const val=slider({label:'Order value (US$)',min:5000,max:500000,step:5000,value:120000,fmt:v=>money(v),oninput:calc});
+  c.append(h('div',{class:'grid2'},h('div',null,rel,cr,comp,val),h('div',null,h('h3',null,'Risk to the exporter (0–10) — green = recommended'),chart)),out); el.append(c);
+  function calc(){ if(!val) return;
+    // tolerable exporter risk rises with trust, falls with country risk; competition pushes toward buyer-friendly terms
+    const tol=Lab.clamp(2+0.6*rel.get()-0.45*cr.get()+0.3*comp.get(),1,10);
+    const ok=M.filter(m=>m.ex<=tol); const pick=ok.length?ok.reduce((a,b)=>b.im<a.im?b:a):M[0];
+    bars(chart,M.map(m=>({label:m.n,value:m.ex,color:m===pick?'--c3':'--c5'})),{max:10,labelW:230,fmt:v=>'exp '+v});
+    const cost=val.get()*pick.cost/100;
+    clear(out); out.append(fb('good',`<b>Recommended: ${pick.n}.</b> It is the most buyer-friendly option whose exporter risk (${pick.ex}/10) you can tolerate (≈${fmt(tol,1)}/10). Payment timing: ${pick.speed}. Approx. bank cost: ${money(cost)} (${pick.cost}% illustrative).`));
+    if(cr.get()>=7 && pick.n.includes('Unconfirmed')) out.append(fb('warn','With high country risk, ask for the L/C to be <b>confirmed</b> by a bank in Pakistan.'));
+    if(comp.get()>=8 && pick.ex<=2) out.append(fb('warn','Rivals offer easier terms — consider export-credit insurance so you can offer documentary collection or open account safely.'));
+  }
+  calc();
+ }},
+ {label:'2 · Letter-of-credit process', build(el){ const c=card('Put the L/C steps in order'); el.append(c);
+  sequence(c,{steps:['Exporter and importer sign a sales contract calling for payment by L/C','Importer applies to its bank (issuing bank) to open the L/C','Issuing bank sends the L/C to an advising bank in the exporter’s country','Advising (or confirming) bank notifies the exporter','Exporter ships the goods and obtains the bill of lading and other documents','Exporter presents the documents to the advising/confirming bank','Bank checks the documents against the L/C terms and pays the exporter','Documents go to the issuing bank, which reimburses the paying bank and debits the importer','Importer receives the documents and collects the goods from the carrier'],explain:'Banks deal in documents, not goods — a single discrepancy (wrong date, spelling, quantity) can delay payment.'});
+ }},
+ {label:'3 · Trade finance check', build(el){ const c=card('Concept check'); el.append(c);
+  quiz(c,[
+   {q:'Which method gives the importer the MOST protection?',options:['Cash in advance','Letter of credit','Documentary collection','Open account'],answer:3,explain:'On open account the buyer receives goods before paying.'},
+   {q:'A “confirmed” L/C means…',options:['The buyer has confirmed the order','A bank in the exporter’s country adds its own guarantee to pay','Goods are insured','The price is fixed'],answer:1,explain:'Confirmation protects against the issuing bank’s or country’s risk.'},
+   {q:'Under D/P (documents against payment) the importer gets the shipping documents…',options:['Before shipment','When it pays the sight draft','60 days after arrival','Never'],answer:1,explain:'D/P = sight draft; D/A = documents against acceptance of a time draft.'},
+   {q:'Selling export receivables at a discount to a specialist firm is…',options:['Countertrade','Factoring / forfaiting','Dumping','Licensing'],answer:1,explain:'Factoring (short-term) and forfaiting (medium-term, often with bank guarantees).'},
+   {q:'Which is NOT a key global sourcing factor?',options:['Factor costs and conditions','Logistics','Country infrastructure & political risk','The colour of the company logo'],answer:3,explain:'Management vision, factor costs, customer needs, logistics, infrastructure, political risk, market access and FX all matter.'}
+  ]);
+ }}
+]);
+</script></body></html>

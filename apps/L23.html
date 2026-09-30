@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,stat,fb,fmt,money,clear,bars,tabs,quiz}=Lab;
+const app=page({n:23,
+  primer:[
+   "A <b>distribution channel</b> is the set of intermediaries that moves products from producer to customer. It creates <b>place, time, form and information utility</b>.",
+   "Channel design depends on <b>customer characteristics</b>, <b>product characteristics</b>, <b>middleman characteristics</b> and <b>environmental characteristics</b> (laws, culture, infrastructure).",
+   "Consumer channels range from <b>direct</b> (e-commerce, own stores, door-to-door) to long, multi-tier chains (agent → importer → wholesaler → sub-wholesaler → retailer). Longer channels add <b>coverage</b> but reduce <b>control</b> and add <b>margins</b>.",
+   "Intermediaries: <b>agents</b> (no title, commission), <b>distributors/merchants</b> (take title), <b>wholesalers</b> and <b>retailers</b>.",
+   "<b>Global retailing</b> trends: hypermarkets and supercentres, discount and convenience formats, category killers, the rise of modern trade in emerging markets alongside traditional kiryana stores, and fast growth of e-commerce, mobile and social commerce."
+  ],
+  discussion:["Why do FMCG firms in Pakistan still rely on long channels to reach kiryana stores?","When does it make sense to skip the importer and sell direct to foreign retailers?","How is e-commerce changing channel length in your city?"]
+});
+const INT=[{k:'agent',n:'Export agent (commission on factory price)',m:5,on:false,comm:true},{k:'imp',n:'Importer / master distributor',m:15,on:true},{k:'ws',n:'Wholesaler',m:12,on:true},{k:'sub',n:'Sub-wholesaler / stockist',m:8,on:false},{k:'ret',n:'Retailer',m:30,on:true}];
+tabs(app,[
+ {label:'1 · Channel designer', build(el){ const c=card('Design the channel for a US$10 (factory price) skin-care product'); const chart=h('div'), out=h('div');
+  const rows=INT.map(x=>{ const cb=h('input',{type:'checkbox',checked:x.on?true:null,onchange:calc}); const sl=slider({label:x.n,min:0,max:60,value:x.m,fmt:v=>v+'% '+(x.comm?'commission':'markup'),oninput:calc}); return {x,cb,sl,el:h('div',{class:'row',style:{alignItems:'flex-start',flexWrap:'nowrap'}},h('div',{style:{paddingTop:'14px'}},cb),h('div',{style:{flex:1}},sl))}; });
+  const log=slider({label:'Freight & duty added before the first intermediary',min:0,max:100,value:30,fmt:v=>v+'% of factory price',oninput:calc});
+  const S=[stat('Levels in the channel'),stat('Consumer price'),stat('Price multiple of factory price')];
+  c.append(h('div',{class:'grid2'},h('div',null,rows.map(r=>r.el),log),h('div',null,chart)),h('div',{class:'grid3'},S),out); el.append(c);
+  function calc(){ if(!log) return; let p=10, steps=[{label:'Factory price',value:p}], lv=0, agent=0;
+    const on=rows.filter(r=>r.cb.checked);
+    if(on.find(r=>r.x.k==='agent')){ agent=10*on.find(r=>r.x.k==='agent').sl.get()/100; }
+    p=p+agent+10*log.get()/100; steps.push({label:'Landed (+ agent, freight, duty)',value:p,color:'--c2'});
+    on.filter(r=>r.x.k!=='agent').forEach(r=>{ p=p*(1+r.sl.get()/100); lv++; steps.push({label:'+ '+r.x.n.split(' (')[0].split(' /')[0],value:p}); });
+    steps[steps.length-1].color='--c5';
+    lv+=agent?1:0; S[0].set(lv); S[1].set(money(p,2)); S[2].set(fmt(p/10,2)+'×');
+    bars(chart,steps,{fmt:x=>money(x,2)});
+    clear(out); const hasRet=on.some(r=>r.x.k==='ret');
+    out.append(fb(lv>=4?'warn':lv<=1?'info':'good',lv>=4?'<b>Long channel:</b> wide coverage of scattered small shops, but high consumer price and weak control over merchandising and pricing.':lv<=1?`<b>Short/direct channel:</b> maximum control and margin, but you must perform storage, credit, selling and delivery yourself${hasRet?'':' — e.g. via e-commerce or your own stores'}.`:'<b>Balanced channel:</b> reasonable coverage with manageable control.')); }
+  calc();
+ }},
+ {label:'2 · Concept check', build(el){ const c=card('Channels & global retailing'); el.append(c);
+  quiz(c,[
+   {q:'An intermediary that does NOT take title to the goods is a…',options:['Distributor','Wholesaler','Agent','Retailer'],answer:2,explain:'Agents work on commission; merchants/distributors take title.'},
+   {q:'Perishable, low-value products usually need…',options:['Very long, slow channels','Short, fast channels with wide coverage','Only direct mail','No intermediaries at all'],answer:1,explain:'Product characteristics drive channel design.'},
+   {q:'A huge store combining supermarket and discount department store is a…',options:['Category killer','Hypermarket / supercentre','Convenience store','Kiosk'],answer:1,explain:'E.g. Carrefour hypermarkets.'},
+   {q:'A specialist retailer with a huge assortment in one category (e.g. toys, electronics) is a…',options:['Category killer','Department store','Kiryana store','Duty-free shop'],answer:0,explain:'It “kills” smaller specialist competitors.'},
+   {q:'Which is a key DISADVANTAGE of long channels?',options:['Greater coverage','Lower consumer price','Less control and higher final price','Fewer transactions'],answer:2,explain:'Each level adds margin and reduces manufacturer control.'}
+  ]);
+ }}
+]);
+</script></body></html>

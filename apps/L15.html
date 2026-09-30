@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,numInput,stat,fb,fmt,money,clear,bars,tabs,quiz,selectBox,classify}=Lab;
+const app=page({n:15,
+  primer:[
+   "<b>Exporting</b> sells goods made in one country to another; <b>importing</b> brings them in. Export selling (same product, just shipped) differs from <b>export marketing</b> (tailoring the mix to the target market).",
+   "<b>National policies</b> both promote exports (subsidies, tax incentives, export processing zones, export-credit agencies — in Pakistan, TDAP and EXIM Bank) and restrict imports through <b>tariffs</b> and <b>non-tariff barriers</b> (quotas, licences, standards, discriminatory procurement, customs delays).",
+   "Tariff systems: <b>ad valorem</b> duty (% of value — usually on CIF value), <b>specific</b> duty (fixed amount per unit/weight) and <b>compound</b> duty (both). The <b>Harmonized System (HS)</b> classifies products with common codes worldwide. Additional charges can include sales tax/VAT, regulatory and anti-dumping duties, and clearing fees.",
+   "<b>Export participants</b>: export merchants and export agents, export management companies (EMCs), trading companies, manufacturer’s export agents, and piggyback marketing (using another firm’s distribution)."
+  ],
+  discussion:["Why do many countries charge ad valorem duty on CIF rather than FOB value?","Which Pakistani export sectors benefit most from EU GSP+ preferences, and what happens to landed cost if those preferences were lost?","When should a small exporter use an export management company instead of setting up its own export department?"]
+});
+tabs(app,[
+ {label:'1 · Landed cost calculator', build(el){ const c=card('Importing 1,000 units into a foreign market'); const chart=h('div'), out=h('div');
+  const V={};
+  const add=(k,o)=>V[k]=slider({...o,oninput:calc});
+  const L=h('div',null,h('h3',null,'Shipment'),
+    add('fob',{label:'FOB value per unit (US$)',min:1,max:200,value:20,fmt:v=>'$'+v}),
+    add('qty',{label:'Quantity (units)',min:100,max:10000,step:100,value:1000,fmt:v=>fmt(v)}),
+    add('fr',{label:'Ocean freight for the shipment (US$)',min:0,max:10000,step:50,value:1800,fmt:v=>'$'+fmt(v)}),
+    add('ins',{label:'Insurance (% of CIF)',min:0,max:3,step:0.1,value:0.5,fmt:v=>v+'%'}));
+  const type=selectBox({label:'Tariff type',options:[['adv','Ad valorem (% of CIF)'],['spec','Specific ($ per unit)'],['comp','Compound (both)']],value:'adv',onchange:calc});
+  const R=h('div',null,h('h3',null,'Duties & charges'),type,
+    add('adv',{label:'Ad valorem rate',min:0,max:100,value:20,fmt:v=>v+'%'}),
+    add('spec',{label:'Specific duty per unit (US$)',min:0,max:20,step:0.25,value:1.5,fmt:v=>'$'+v}),
+    add('vat',{label:'Sales tax / VAT on (CIF + duty)',min:0,max:25,value:17,fmt:v=>v+'%'}),
+    add('clr',{label:'Clearing, port & inland charges (US$)',min:0,max:5000,step:50,value:600,fmt:v=>'$'+fmt(v)}));
+  const S=[stat('CIF value'),stat('Import duty'),stat('Landed cost (total)'),stat('Landed cost per unit')];
+  c.append(h('div',{class:'grid2'},L,R),h('div',{class:'grid3'},S),chart,out); el.append(c);
+  function calc(){ if(!V.clr) return; const v=k=>V[k].get(); const fobT=v('fob')*v('qty');
+    const cif=(fobT+v('fr'))/(1-v('ins')/100); const insA=cif-fobT-v('fr');
+    const t=type.get(); const dAdv=(t!=='spec')?cif*v('adv')/100:0, dSpec=(t!=='adv')?v('spec')*v('qty'):0, duty=dAdv+dSpec;
+    const vat=(cif+duty)*v('vat')/100, landed=cif+duty+vat+v('clr');
+    S[0].set(money(cif)); S[1].set(money(duty)); S[2].set(money(landed)); S[3].set(money(landed/v('qty'),2));
+    bars(chart,[{label:'FOB value',value:fobT},{label:'Freight',value:v('fr')},{label:'Insurance',value:insA},{label:'Import duty',value:duty,color:'--c5'},{label:'Sales tax / VAT',value:vat,color:'--c2'},{label:'Clearing & inland',value:v('clr'),color:'--c4'}],{fmt:x=>money(x)});
+    clear(out); out.append(fb('info',`The product leaves the factory at ${money(v('fob'),2)} but lands at <b>${money(landed/v('qty'),2)}</b> per unit — a <b>${fmt((landed/fobT-1)*100)}%</b> increase before any importer or retailer margin. ${t==='spec'?'Specific duties hit cheap products hardest as a % of value.':'Because ad valorem duty is charged on CIF, freight and insurance also attract duty.'}`)); }
+  calc();
+ }},
+ {label:'2 · Export participants', build(el){ const c=card('Who is who in exporting?'); el.append(c);
+  classify(c,{bins:['Takes title (buys & resells)','Does not take title (agent/service)'],items:[
+   {text:'Export merchant',bin:0,why:'Buys products outright and sells them abroad.'},{text:'Trading company (e.g. Japanese sogo shosha)',bin:0,why:'Buys, sells, finances and ships.'},{text:'Foreign distributor',bin:0,why:'Buys for its own account in the market.'},
+   {text:'Export agent / broker',bin:1,why:'Brings buyer and seller together for a commission.'},{text:'Manufacturer’s export agent',bin:1,why:'Sells on commission for several non-competing firms.'},{text:'Freight forwarder',bin:1,why:'Arranges shipping and documents as a service.'},{text:'Export management company working on commission',bin:1,why:'Acts as the firm’s export department (some EMCs also buy and resell).'}
+  ]});
+ }},
+ {label:'3 · Tariffs & policy check', build(el){ const c=card('Concept check'); el.append(c);
+  quiz(c,[
+   {q:'A duty of US$2 per kilogram is a…',options:['Ad valorem duty','Specific duty','Compound duty','Quota'],answer:1,explain:'Specific duties are fixed amounts per unit of weight or quantity.'},
+   {q:'A duty of 10% plus US$1 per unit is a…',options:['Compound duty','Specific duty','Anti-dumping duty','Tariff-rate quota'],answer:0,explain:'Compound = ad valorem + specific.'},
+   {q:'Which is a non-tariff barrier?',options:['20% ad valorem duty','Import licensing and product standards','MFN rate','Free trade zone'],answer:1,explain:'Quotas, licences, standards and procurement rules are NTBs.'},
+   {q:'The Harmonized System is…',options:['A payment method','A worldwide product classification for customs','A Pakistani tax','A shipping route'],answer:1,explain:'HS codes (6 digits internationally) classify goods for tariffs and statistics.'},
+   {q:'Using another company’s established foreign distribution to sell your product is called…',options:['Piggyback marketing','Dumping','Countertrade','Licensing'],answer:0,explain:'The ‘rider’ uses the ‘carrier’s’ channels.'}
+  ]);
+ }}
+]);
+</script></body></html>

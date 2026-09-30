@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,fb,clear,tabs,scenarios,classify}=Lab;
+const app=page({n:7,
+  primer:[
+   "<b>Culture</b> is a society’s learned, shared and transmitted way of life — values, attitudes, beliefs, norms and artefacts. It shapes what people buy, why and how.",
+   "<b>Global consumer culture</b> is shared by segments that identify with global brands and symbols (e.g. youth, the ‘global elite’), even across very different countries.",
+   "Edward T. Hall’s <b>high- vs low-context</b> distinction: in <b>low-context</b> cultures (Germany, Switzerland, USA, Scandinavia) messages are explicit, words carry the meaning, contracts are detailed and time is monochronic. In <b>high-context</b> cultures (Japan, China, Arab countries, Pakistan) meaning lies in the context — relationships, status, non-verbal cues — and a person’s word is their bond.",
+   "Marketing implications: relationship-building before business, indirect ‘no’, the role of silence, the weight of written contracts, and advertising that is either fact-based or mood-and-image based."
+  ],
+  discussion:["Give an example of a Pakistani business practice that would puzzle a low-context German buyer.","How should an advertising message for the same product differ between a high- and low-context market?","Is the internet creating a global consumer culture — or reinforcing local ones?"]
+});
+tabs(app,[
+ {label:'1 · Negotiation role-play', build(el){ const c=card('You are export manager for a Sialkot sports-goods maker'); el.append(c);
+  scenarios(c,{start:'a1',meters:[{key:'trust',label:'Relationship & trust',init:50},{key:'deal',label:'Deal progress',init:30},{key:'fluency',label:'Cultural fluency',init:50}],
+   nodes:{
+    a1:{title:'Tokyo · First meeting',text:'You meet the purchasing team of a Japanese retailer (a <b>high-context</b> culture). After bowing and exchanging business cards, their senior manager asks about your family business history. You have a 40-slide price deck ready.',choices:[
+      {label:'Politely skip small talk and start the price presentation — time is money.',effects:{trust:-15,deal:-5,fluency:-15},tone:'bad',result:'The team becomes quiet and formal. In high-context cultures, business follows relationship; rushing signals you care only about the transaction.',next:'a2'},
+      {label:'Share your company’s three-generation history and ask about theirs; offer a small, well-wrapped gift.',effects:{trust:15,deal:5,fluency:15},tone:'good',result:'Warm response. The senior manager studies your card carefully and places it on the table — a sign of respect. Context and relationship are being built.',next:'a2'}]},
+    a2:{title:'Tokyo · The offer',text:'You propose a price. The senior manager pauses, sucks air through his teeth and says, “This will be very difficult… we will study it.”',choices:[
+      {label:'Take it as a maybe and wait for their study.',effects:{deal:-10,fluency:-10},tone:'warn',result:'In Japan, “it will be difficult” is often a polite <b>no</b>. Waiting passively lets the deal drift.',next:'a3'},
+      {label:'Read it as a polite no; suggest quietly exploring other options, perhaps over dinner with your agent.',effects:{deal:10,trust:10,fluency:15},tone:'good',result:'Correct reading of an indirect refusal. Informal settings (nemawashi) let both sides adjust without losing face.',next:'a3'},
+      {label:'Ask directly: “Is that a yes or a no?”',effects:{trust:-15,fluency:-10},tone:'bad',result:'Forcing an explicit answer causes loss of face. High-context communicators rely on you to read the context.',next:'a3'}]},
+    a3:{title:'Frankfurt · Second buyer',text:'Next week you meet a German sporting-goods chain (a <b>low-context</b>, monochronic culture). The meeting is booked 10:00–11:00.',choices:[
+      {label:'Arrive at 10:15 and spend 30 minutes on personal stories to build rapport.',effects:{trust:-15,deal:-10,fluency:-15},tone:'bad',result:'Lateness and long small talk read as unprofessional. Low-context buyers expect punctuality, a clear agenda and facts.',next:'a4'},
+      {label:'Arrive at 9:55 with specifications, test certificates, delivery schedule and a written price list.',effects:{trust:10,deal:15,fluency:15},tone:'good',result:'Exactly right. In low-context cultures, trust is built through competence, precision and documentation.',next:'a4'}]},
+    a4:{title:'Frankfurt · The contract',text:'The German buyer sends a 30-page contract covering penalties for late delivery, quality tolerances and arbitration in Frankfurt.',choices:[
+      {label:'Feel insulted — “Don’t they trust us?” — and ask for a handshake agreement instead.',effects:{trust:-10,deal:-15,fluency:-15},tone:'bad',result:'In low-context cultures the detailed written contract <b>is</b> the trust mechanism; it is not a sign of suspicion.',next:'a5'},
+      {label:'Review it with a lawyer, negotiate specific clauses in writing and sign.',effects:{deal:20,fluency:10},tone:'good',result:'You treat the contract as the German side does — the explicit record of the deal.',next:'a5'}]},
+    a5:{title:'Back home · Advertising',text:'Marketing wants one ad for both markets. Draft A lists technical specs and test results. Draft B shows a football team celebrating at sunset with your logo and a short poetic line.',choices:[
+      {label:'Use Draft A in Germany and Draft B in Japan.',effects:{deal:10,fluency:15},tone:'good',result:'Low-context audiences respond to explicit, fact-based copy; high-context audiences to mood, symbolism and image.'},
+      {label:'Use Draft A everywhere — facts are universal.',effects:{fluency:-10},tone:'warn',result:'Facts matter everywhere, but in high-context markets a spec-sheet ad can feel cold and pushy.'},
+      {label:'Use Draft B everywhere — emotion sells.',effects:{fluency:-10},tone:'warn',result:'German buyers may find it vague: “What exactly is better about this ball?”'}]}
+   },
+   endText:st=>st.fluency>=70?'<b>Excellent cultural fluency.</b> You adjusted between high- and low-context styles — the core skill in global marketing.':st.fluency>=45?'<b>Mixed result.</b> Review where your own cultural habits (the self-reference criterion) guided your choices.':'<b>Low cultural fluency.</b> Your own norms drove most decisions. Replay and try reading the context.'});
+ }},
+ {label:'2 · High or low context?', build(el){ const c=card('Sort the behaviours and cultures'); el.append(c);
+  classify(c,{bins:['Low-context','High-context'],items:[
+   {text:'Germany',bin:0,why:'Explicit, precise, monochronic.'},{text:'Switzerland (German-speaking)',bin:0,why:'Among the lowest-context cultures.'},{text:'United States',bin:0,why:'Direct communication; detailed contracts.'},
+   {text:'Japan',bin:1,why:'Meaning in context, silence and status.'},{text:'Saudi Arabia',bin:1,why:'Relationships and hospitality precede business.'},{text:'Pakistan',bin:1,why:'Relationship- and status-oriented; indirect refusals are common.'},{text:'China',bin:1,why:'Guanxi (relationships) is central.'},
+   {text:'“Our lawyer will send the contract.”',bin:0,why:'Written, legalistic agreement.'},{text:'“Let us have dinner first and meet the family.”',bin:1,why:'Relationship before transaction.'},
+   {text:'A clear “No, the price is too high.”',bin:0,why:'Explicit refusal.'},{text:'“We will consider it very carefully.” (meaning no)',bin:1,why:'Indirect refusal to save face.'},{text:'Meetings start and end exactly on time',bin:0,why:'Monochronic time.'}
+  ]});
+ }}
+]);
+</script></body></html>

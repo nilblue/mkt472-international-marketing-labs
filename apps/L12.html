@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,numInput,stat,fb,fmt,money,clear,tabs,quiz,sequence,selectBox}=Lab;
+const app=page({n:12,
+  primer:[
+   "<b>Formal market research</b> is the project-specific, systematic collection of data in the search mode. A widely taught eight-step process: <b>(1)</b> identify the information requirement, <b>(2)</b> define the problem, <b>(3)</b> choose the unit of analysis (country, region, segment), <b>(4)</b> examine data availability, <b>(5)</b> assess the value of research, <b>(6)</b> design the research, <b>(7)</b> analyse the data, <b>(8)</b> interpret and present the results.",
+   "Step 5 means comparing the <b>cost of research</b> with the <b>value of better information</b> — small markets may not justify large studies.",
+   "Cross-national surveys face <b>comparability</b> problems: translation (use <b>back-translation</b>), sampling frames, literacy and response styles.",
+   "<b>Headquarters’ control</b> of research ranges from <b>centralised</b> (HQ designs and runs everything) to <b>coordinated</b> (HQ sets standards, local units execute) to <b>decentralised</b> (country units run their own research). Coordination improves comparability while keeping local insight."
+  ],
+  discussion:["Why is step 4 (data availability) placed before research design?","A survey question about ‘household income’ is used in Pakistan and Germany. What comparability problems could arise?","When should HQ centralise research, and when should it let country units lead?"]
+});
+tabs(app,[
+ {label:'1 · Order the 8 steps', build(el){ const c=card('Put the formal research process in order'); el.append(c);
+  sequence(c,{steps:['Identify the information requirement','Define the problem','Choose the unit of analysis','Examine data availability','Assess the value of research','Design the research','Analyse the data','Interpret and present the results'],explain:'Notice that secondary data are checked (step 4) and the cost/benefit is judged (step 5) before money is spent on primary research design.'});
+ }},
+ {label:'2 · Multi-country sample-size calculator', build(el){ const c=card('How many respondents do you need?'); const out=h('div');
+  const conf=selectBox({label:'Confidence level',options:[['1.645','90%'],['1.96','95%'],['2.576','99%']],value:'1.96',onchange:calc});
+  const e=slider({label:'Margin of error (±)',min:1,max:10,step:0.5,value:5,fmt:v=>v+'%',oninput:calc});
+  const p=slider({label:'Expected proportion (use 50% if unknown)',min:5,max:95,value:50,fmt:v=>v+'%',oninput:calc});
+  const k=slider({label:'Number of countries (separate estimate for each)',min:1,max:10,value:3,oninput:calc});
+  const cost=slider({label:'Average cost per completed interview (US$)',min:1,max:60,value:8,fmt:v=>'$'+v,oninput:calc});
+  const rr=slider({label:'Expected response rate',min:5,max:100,value:40,fmt:v=>v+'%',oninput:calc});
+  const S=[stat('Completes per country'),stat('Contacts per country'),stat('Total completes'),stat('Fieldwork budget')];
+  c.append(h('div',{class:'grid2'},h('div',null,conf,e,p),h('div',null,k,cost,rr)),h('div',{class:'grid3'},S),out,h('p',{class:'small muted'},'Formula: n = z² · p(1−p) / e² (large populations). Contacts = n ÷ response rate.')); el.append(c);
+  function calc(){ if(!rr) return; const z=+conf.get(), pp=p.get()/100, ee=e.get()/100; const n=Math.ceil(z*z*pp*(1-pp)/(ee*ee));
+    const contacts=Math.ceil(n/(rr.get()/100)); S[0].set(fmt(n)); S[1].set(fmt(contacts)); S[2].set(fmt(n*k.get())); S[3].set(money(n*k.get()*cost.get()));
+    clear(out); out.append(fb('info',`Halving the margin of error from ${e.get()}% to ${e.get()/2}% would need about <b>${fmt(n*4)}</b> completes per country — four times as many. Step 5 of the process asks whether that extra precision is worth ${money(n*3*k.get()*cost.get())} more.`)); }
+  calc();
+ }},
+ {label:'3 · HQ control & comparability', build(el){ const c=card('Concept check'); el.append(c);
+  quiz(c,[
+   {q:'HQ sets a common questionnaire and sampling standards, while country teams run fieldwork. This is…',options:['Centralised','Coordinated','Decentralised','Outsourced only'],answer:1,explain:'Coordinated control balances comparability with local execution.'},
+   {q:'Back-translation means…',options:['Translating the questionnaire, then a second translator translates it back to check meaning','Translating only the answers','Using English everywhere','Translating twice into the same language'],answer:0,explain:'It catches errors in meaning before fieldwork.'},
+   {q:'Which step decides whether the research is worth its cost?',options:['Define the problem','Assess the value of research','Analyse the data','Choose the unit of analysis'],answer:1,explain:'Compare the cost of research with the expected value of better decisions.'},
+   {q:'Before designing a primary survey, researchers should first…',options:['Examine secondary data availability','Present results','Analyse data','Hire interviewers'],answer:0,explain:'Existing data may answer part of the question more cheaply.'},
+   {q:'A key risk of fully decentralised research is…',options:['Results cannot be compared across countries','Too much local insight','Lower costs','Faster decisions'],answer:0,explain:'Each country uses different definitions and methods.'}
+  ]);
+ }}
+]);
+</script></body></html>

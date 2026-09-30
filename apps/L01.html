@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,stat,fb,fmt,clear,classify,tabs}=Lab;
+const app=page({n:1,
+  primer:[
+   "<b>Marketing</b> focuses the organization on creating <b>customer value</b> better than competitors do. Value can be written as <b>V = B / P</b> — perceived benefits divided by price.",
+   "A firm can raise value by improving the <b>product</b>, <b>promotion</b> or <b>distribution</b> (raising B) or by lowering <b>price</b> (lowering P).",
+   "<b>Competitive advantage</b> exists when a firm delivers more value than rivals in its market — through <b>cost leadership</b> or <b>differentiation</b>.",
+   "A <b>global industry</b> is one in which competitive advantage in one country is strongly affected by position in others (e.g. aircraft, smartphones). In a <b>multidomestic</b> industry, competition is fought country by country (e.g. retail banking, many food categories)."
+  ],
+  discussion:["Pick a Pakistani brand that has gone abroad. Did it compete on higher benefits or lower price in its first foreign market?","Why might a global industry reward scale while a multidomestic industry rewards local responsiveness?","Using the simulator, what happens to value if a competitor matches your benefits at a 20% lower price?"]
+});
+tabs(app,[
+ {label:'1 · Customer value simulator', build(el){
+   const c=card('Your offer vs a competitor');
+   const out=h('div'), grid=h('div',{class:'grid2'});
+   const mk=(who,b)=>({
+     prod:slider({label:'Product quality (benefit points)',min:0,max:40,value:b[0],oninput:calc}),
+     promo:slider({label:'Promotion / brand image',min:0,max:30,value:b[1],oninput:calc}),
+     place:slider({label:'Distribution convenience',min:0,max:30,value:b[2],oninput:calc}),
+     price:slider({label:'Price ($)',min:20,max:200,value:b[3],fmt:v=>'$'+v,oninput:calc})});
+   let A,B;
+   A=mk('you',[25,15,15,90]); B=mk('rival',[30,20,10,120]);
+   const vA=stat('Your value index'), vB=stat('Rival value index');
+   grid.append(h('div',null,h('h3',null,'Your firm'),Object.values(A)), h('div',null,h('h3',null,'Competitor'),Object.values(B)));
+   c.append(grid,h('div',{class:'grid2',style:{marginTop:'10px'}},vA,vB),out);
+   el.append(c);
+   function calc(){ if(!B) return;
+     const bA=A.prod.get()+A.promo.get()+A.place.get(), bB=B.prod.get()+B.promo.get()+B.place.get();
+     const va=bA/A.price.get()*100, vb=bB/B.price.get()*100;
+     vA.set(fmt(va,1)); vB.set(fmt(vb,1));
+     clear(out);
+     const gap=(va-vb)/vb;
+     out.append(fb(gap>0.05?'good':gap<-0.05?'bad':'warn',
+       gap>0.05?`<b>You have a value advantage of ${fmt(gap*100)}%.</b> ${A.price.get()<B.price.get()?'Much of it comes from a lower price — a cost-leadership position must be backed by lower costs.':'You win on benefits — a differentiation position.'}`
+       :gap<-0.05?`<b>The competitor offers ${fmt(-gap*100)}% more value.</b> Raise benefits (product, promotion, place) or lower price to close the gap.`
+       :'<b>Parity.</b> Neither offer has a clear value advantage — customers will choose on other factors.'));
+   }
+   calc();
+ }},
+ {label:'2 · Global vs multidomestic industries', build(el){
+   const c=card('Sort the industries');
+   classify(c,{bins:['Global industry','Multidomestic industry'],items:[
+     {text:'Commercial aircraft',bin:0,why:'Two to three worldwide rivals; scale and R&D spread over world volume.'},
+     {text:'Smartphones',bin:0,why:'Standard product, global brands, global supply chains.'},
+     {text:'Semiconductors',bin:0,why:'Massive fixed costs require world-scale sales.'},
+     {text:'Automobiles',bin:0,why:'Global platforms and competitors, even with local tweaks.'},
+     {text:'Retail banking',bin:1,why:'Regulation, local networks and relationships dominate.'},
+     {text:'Newspapers',bin:1,why:'Language and local news make competition national.'},
+     {text:'Cement',bin:1,why:'Heavy, low-value product; markets are local due to transport cost.'},
+     {text:'Street food & local cuisine',bin:1,why:'Tastes and competitors are local.'},
+     {text:'Luxury watches',bin:0,why:'Same brands and positioning world-wide.'},
+     {text:'Funeral services',bin:1,why:'Culture, religion and regulation vary by country.'}
+   ]});
+   el.append(c);
+ }}
+]);
+</script></body></html>

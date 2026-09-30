@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,stat,fb,fmt,money,clear,bars,tabs,quiz}=Lab;
+const app=page({n:29,
+  primer:[
+   "<b>Global e-commerce</b> — B2C, B2B, C2C and marketplace models — lets even small firms sell across borders, but conversion depends on trust, payment, delivery and cost transparency.",
+   "<b>Value networks</b>: the internet reconfigures value chains into networks of partners (platforms, payment providers, logistics firms, app developers) that jointly create value.",
+   "<b>Web site design</b> for global markets: local language (and right-to-left layouts for Arabic/Urdu), local currency and <b>local payment methods</b> (cards are not universal — cash on delivery, mobile wallets, bank transfers), clear <b>landed cost</b> (duties and shipping), local customer service, cultural imagery, legal compliance, mobile-first design and speed.",
+   "<b>New digital products and services</b>: cloud computing, mobile apps and wallets, wearables, smart devices and streaming — often global from day one."
+  ],
+  discussion:["Audit a Pakistani brand’s website for an overseas customer. What is the single biggest barrier to buying?","Why does cash on delivery still matter for e-commerce in Pakistan and the Gulf?","Which new digital product or service could a Pakistani start-up take global?"]
+});
+const CK=[['Site available in the customer’s language (with RTL layout where needed)',12],['Prices shown in local currency',10],['Local payment methods (wallets, COD, local cards/bank transfer)',14],['Full landed cost shown at checkout (shipping, duties, taxes)',12],['Clear delivery times and tracking',8],['Local-language customer service / WhatsApp support',8],['Culturally appropriate images, colours and models',7],['Privacy notice, returns policy and consumer-law compliance',8],['Mobile-first design and fast page load',11],['Local search visibility (local domain/SEO, marketplace presence)',6],['Correct local formats (dates, sizes, units, addresses)',4]];
+tabs(app,[
+ {label:'1 · Localization audit', build(el){ const c=card('Audit a website for a target country — tick what it does well'); const out=h('div'), sc=stat('Localization score');
+  const boxes=CK.map(([t,w])=>h('input',{type:'checkbox',onchange:calc}));
+  c.append(h('div',{class:'grid2'},h('div',null,CK.map(([t,w],i)=>h('label',{class:'row small',style:{margin:'6px 0',alignItems:'flex-start',flexWrap:'nowrap'}},boxes[i],h('span',null,t,h('span',{class:'muted'},` (${w} pts)`))))),h('div',null,sc,out))); el.append(c);
+  function calc(){ let t=0; const miss=[]; CK.forEach(([l,w],i)=>boxes[i].checked?t+=w:miss.push([l,w])); sc.set(t+'/100');
+    miss.sort((a,b)=>b[1]-a[1]); clear(out);
+    out.append(fb(t>=80?'good':t>=50?'warn':'bad',t>=80?'<b>Well localized.</b> Customers can find, trust and pay easily.':t>=50?'<b>Partly localized.</b> Expect abandoned carts at checkout.':'<b>Not ready for this market.</b> Most visitors will leave before buying.'));
+    if(miss.length) out.append(h('h3',{style:{marginTop:'12px'}},'Fix these first'),h('ol',null,miss.slice(0,3).map(([l])=>h('li',{class:'small'},l)))); }
+  calc();
+ }},
+ {label:'2 · Cross-border conversion funnel', build(el){ const c=card('100,000 monthly visitors from abroad'); const chart=h('div'), out=h('div');
+  const T=[['Local language',.25,'view'],['Local payment methods',.35,'pay'],['Landed cost shown upfront (no surprise duties)',.30,'check'],['Fast, trackable delivery promise',.20,'cart'],['Mobile-optimised checkout',.20,'check']].map(([l,up,st])=>({l,up,st,cb:h('input',{type:'checkbox',onchange:calc})}));
+  const aov=slider({label:'Average order value (US$)',min:10,max:300,value:45,fmt:v=>'$'+v,oninput:calc});
+  const S=[stat('Orders / month'),stat('Conversion rate'),stat('Monthly revenue')];
+  c.append(h('div',{class:'grid2'},h('div',null,h('h3',null,'Improvements'),T.map(t=>h('label',{class:'row small',style:{margin:'6px 0'}},t.cb,t.l)),aov),chart),h('div',{class:'grid3'},S),out); el.append(c);
+  function calc(){ if(!aov) return; const base={view:.45,cart:.12,check:.45,pay:.55}; const r={...base};
+    T.forEach(t=>{ if(t.cb.checked) r[t.st]=Math.min(.95,r[t.st]*(1+t.up)); });
+    const v=100000, pv=v*r.view, ac=pv*r.cart, ch=ac*r.check, od=ch*r.pay;
+    bars(chart,[{label:'Visitors',value:v},{label:'View a product',value:pv},{label:'Add to cart',value:ac},{label:'Start checkout',value:ch,color:'--c2'},{label:'Pay successfully',value:od,color:'--c3'}],{fmt:x=>fmt(x)});
+    S[0].set(fmt(od)); S[1].set(fmt(od/v*100,2)+'%'); S[2].set(money(od*aov.get()));
+    clear(out); out.append(fb('info','The biggest cross-border leaks are usually at <b>checkout and payment</b>: unexpected duties and missing local payment options.')); }
+  calc();
+ }},
+ {label:'3 · Concept check', build(el){ const c=card('E-commerce & digital products'); el.append(c);
+  quiz(c,[
+   {q:'An online marketplace where consumers sell used goods to other consumers is…',options:['B2B','B2C','C2C','B2G'],answer:2,explain:'Consumer-to-consumer (e.g. OLX).'},
+   {q:'Which is the most common reason cross-border shoppers abandon carts?',options:['Too many product photos','Unexpected costs such as shipping, duties and taxes','Too many payment options','Fast delivery'],answer:1,explain:'Show landed cost upfront (a DDP-style offer).'},
+   {q:'Storing and running software on remote servers accessed via the internet is…',options:['Cloud computing','Countertrade','Wearables','Piggybacking'],answer:0,explain:'Cloud services scale globally without local servers.'},
+   {q:'A “value network” differs from a value chain because it…',options:['Is linear and internal','Links many partner firms that jointly create value','Only includes suppliers','Has no customers'],answer:1,explain:'Platforms, payment, logistics and content partners co-create value.'}
+  ]);
+ }}
+]);
+</script></body></html>

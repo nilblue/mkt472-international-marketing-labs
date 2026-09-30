@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,fb,fmt,clear,bars,tabs,quiz}=Lab;
+const app=page({n:2,
+  primer:[
+   "<b>Global marketing</b> focuses resources and objectives on global market opportunities and threats, balancing standardization and adaptation.",
+   "Perlmutter's <b>EPRG framework</b> describes management orientation: <b>Ethnocentric</b> (home country is superior; foreign markets get the home product), <b>Polycentric</b> (each country is unique; local subsidiaries decide), <b>Regiocentric</b> (a region is the relevant unit, e.g. EU or GCC), <b>Geocentric</b> (the world is the market; best ideas and people from anywhere).",
+   "<b>Driving forces</b> toward integration: regional trade agreements, market needs converging, technology, transport and communication improvements, product development costs, quality, world economic trends, leverage.",
+   "<b>Restraining forces</b>: management myopia, organizational culture, national controls and barriers to entry, and opposition to globalization."
+  ],
+  discussion:["Which EPRG orientation best describes a Pakistani textile exporter you know? What evidence supports your view?","Can a company be geocentric in product design but ethnocentric in staffing? What problems could that create?","Which restraining force is strongest for Pakistani firms trying to go global today?"]
+});
+const ORI=['Ethnocentric','Polycentric','Regiocentric','Geocentric'];
+const QS=[
+ {q:'Where are new products designed?',a:['Only at headquarters, for the home market first','Separately by each country subsidiary','By regional hubs (e.g. one for the Middle East)','By global teams using ideas from any market']},
+ {q:'How are top managers for foreign units chosen?',a:['Home-country nationals are sent out','Local nationals run each country','People are rotated within the region','The best person from anywhere in the world']},
+ {q:'How are marketing campaigns created?',a:['Home ads are translated and reused','Each country makes its own ads','One campaign per region','Global concept with local execution where needed']},
+ {q:'How is the export/foreign business viewed?',a:['A place to sell surplus home production','A collection of separate local businesses','A set of regional markets','One integrated world market']},
+ {q:'Where are sourcing and production located?',a:['At home, then exported','In each country for that country','In a few regional plants','Wherever the global cost/quality is best']},
+ {q:'How does information flow?',a:['Orders flow from HQ to subsidiaries','Little flow; subsidiaries are autonomous','Flows mainly within the region','Two-way flow across the whole network']}
+];
+tabs(app,[
+ {label:'1 · EPRG diagnostic', build(el){
+   const c=card('Profile a company'); const ans={}; const res=h('div'), chart=h('div');
+   c.append(h('p',{class:'muted small'},'Think of a real company (e.g. a Pakistani exporter or a multinational operating in Pakistan). For each practice choose the statement that fits it best.'));
+   QS.forEach((q,qi)=>{ const box=h('div',{style:{margin:'14px 0'}},h('h3',null,(qi+1)+'. '+q.q));
+     Lab.shuffle(q.a.map((t,i)=>[t,i])).forEach(([t,i])=>box.append(h('label',{class:'row small',style:{margin:'4px 0',cursor:'pointer'}},h('input',{type:'radio',name:'q'+qi,onchange:()=>{ans[qi]=i;calc();}}),t)));
+     c.append(box); });
+   c.append(chart,res); el.append(c);
+   function calc(){ const cnt=[0,0,0,0]; Object.values(ans).forEach(v=>cnt[v]++);
+     bars(chart,ORI.map((o,i)=>({label:o,value:cnt[i],color:['--c5','--c2','--c4','--c3'][i]})),{max:6,fmt:v=>v+' of 6'});
+     clear(res); const n=Object.keys(ans).length; if(n<6){res.append(fb('info',`Answered ${n} of 6.`));return;}
+     const best=cnt.indexOf(Math.max(...cnt));
+     const txt=['Home-market thinking dominates. Risk: missing local needs and the self-reference criterion.','Strong local responsiveness but duplicated effort and weak global leverage.','Regional scale economies and coordination; watch for regional silos.','A truly global mindset — standardize where possible, adapt where necessary.'];
+     res.append(fb('good',`<b>Dominant orientation: ${ORI[best]}.</b> ${txt[best]}`));
+   }
+ }},
+ {label:'2 · Forces tug-of-war', build(el){
+   const c=card('Driving vs restraining forces for your industry'); const out=h('div'), chart=h('div');
+   const D=['Regional trade agreements','Converging market needs','Technology & internet','Transport & communication','High product development costs','Leverage (experience, scale)'].map(n=>slider({label:n,min:0,max:10,value:5,oninput:calc}));
+   const R=['Management myopia','Organizational culture','National controls & entry barriers','Opposition to globalization'].map(n=>slider({label:n,min:0,max:10,value:5,oninput:calc}));
+   c.append(h('div',{class:'grid2'},h('div',null,h('h3',null,'Driving forces'),D),h('div',null,h('h3',null,'Restraining forces'),R)),chart,out); el.append(c);
+   function calc(){ if(!R[3]) return; const d=D.reduce((a,s)=>a+s.get(),0)/D.length, r=R.reduce((a,s)=>a+s.get(),0)/R.length;
+     bars(chart,[{label:'Driving (avg)',value:d,color:'--c3'},{label:'Restraining (avg)',value:r,color:'--c5'},{label:'Net push to globalize',value:d-r,color:d>=r?'--c1':'--c2'}],{min:-10,max:10,fmt:v=>fmt(v,1)});
+     clear(out); out.append(fb(d-r>1.5?'good':d-r<-1.5?'bad':'warn', d-r>1.5?'Forces favour global integration — standardized strategies and global scale are likely to pay off.':d-r<-1.5?'Restraining forces dominate — expect a more local, multidomestic approach.':'Forces are balanced — a “glocal” mix of standardization and adaptation is sensible.'));
+   }
+   calc();
+ }},
+ {label:'3 · Quick check', build(el){ const c=card('Which orientation is it?'); el.append(c);
+   quiz(c,[
+    {q:'A firm sells its home product abroad unchanged, run by expatriate managers.',options:ORI,answer:0,explain:'Home-country orientation: ethnocentric.'},
+    {q:'Each country subsidiary has its own brand names and product range.',options:ORI,answer:1,explain:'Treating each market as unique is polycentric.'},
+    {q:'A company creates one strategy for the whole GCC region from a Dubai hub.',options:ORI,answer:2,explain:'Region as the unit of planning is regiocentric.'},
+    {q:'A firm sources globally, hires the best talent worldwide and builds global brands with local tweaks.',options:ORI,answer:3,explain:'World-as-market thinking is geocentric.'},
+    {q:'Which is a RESTRAINING force on global integration?',options:['Improved communication technology','Management myopia','Regional economic agreements','Leverage'],answer:1,explain:'Myopia, culture, national controls and opposition to globalization restrain integration.'}
+   ]);
+ }}
+]);
+</script></body></html>

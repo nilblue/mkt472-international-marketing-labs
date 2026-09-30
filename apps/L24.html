@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,stat,fb,fmt,money,clear,bars,tabs,quiz}=Lab;
+const app=page({n:24,
+  primer:[
+   "<b>Physical distribution</b> and <b>logistics</b> move goods from the production line to the customer: <b>order processing</b>, <b>warehousing</b>, <b>inventory management</b> and <b>transportation</b>.",
+   "A <b>supply chain</b> is the whole network of firms that perform these activities, from raw materials to the final customer; <b>value chain</b> thinking asks where each step adds value.",
+   "Transport modes — ocean, air, rail, road, pipeline, inland water — differ in <b>cost, speed, reliability, capability and accessibility</b>. <b>Containerisation</b> and <b>intermodal</b> transport revolutionised trade.",
+   "The <b>total-cost concept</b>: the cheapest freight is not always cheapest overall. Slow modes tie up capital in <b>in-transit inventory</b> and require more <b>safety stock</b>; high-value, time-sensitive goods often justify air freight."
+  ],
+  discussion:["Why do fresh mangoes and surgical instruments from Pakistan often fly, while textiles and rice go by sea?","How would a 20-day delay at a canal chokepoint change your total logistics cost?","What does a third-party logistics (3PL) provider offer a small exporter?"]
+});
+const MODES=[{n:'Ocean (FCL container)',days:30,var:7,rate:0.18},{n:'Sea–air via a Gulf hub',days:15,var:3,rate:1.3},{n:'Air freight',days:4,var:1,rate:3.8},{n:'Road / TIR trucking (regional)',days:10,var:3,rate:0.6}];
+tabs(app,[
+ {label:'1 · Total-cost optimizer', build(el){ const c=card('Ship 100 tonnes a year from Pakistan to a foreign customer'); const chart=h('div'), out=h('div');
+  const val=slider({label:'Product value per kg (US$)',min:1,max:300,value:12,fmt:v=>'$'+v,oninput:calc});
+  const hold=slider({label:'Annual inventory carrying cost (capital, storage, obsolescence)',min:5,max:60,value:25,fmt:v=>v+'%',oninput:calc});
+  const vol=slider({label:'Annual volume (tonnes)',min:5,max:500,step:5,value:100,oninput:calc});
+  const perish=slider({label:'Perishability / fashion risk (value lost per week in transit)',min:0,max:10,step:0.5,value:0,fmt:v=>v+'%',oninput:calc});
+  const road=h('input',{type:'checkbox',onchange:calc});
+  c.append(h('div',{class:'grid2'},h('div',null,val,vol,hold,perish,h('label',{class:'row small'},road,'Destination is reachable by road (regional market)')),chart),out); el.append(c);
+  function calc(){ if(!perish) return; const kg=vol.get()*1000, V=val.get()*kg, r=hold.get()/100;
+    const res=MODES.filter(m=>road.checked||!m.n.startsWith('Road')).map(m=>{ const fr=m.rate*kg, pipe=V*r*m.days/365, safety=V*r*(m.var*1.65)/365, spoil=V*perish.get()/100*m.days/7; return {m,fr,pipe,safety,spoil,tot:fr+pipe+safety+spoil}; }).sort((a,b)=>a.tot-b.tot);
+    bars(chart,res.map((x,i)=>({label:x.m.n,value:x.tot,color:i===0?'--c3':'--c1'})),{fmt:v=>money(v/1000,0)+'k',labelW:210});
+    const b=res[0], cheapFr=res.slice().sort((a,c)=>a.fr-c.fr)[0];
+    clear(out); out.append(fb('good',`<b>Lowest total cost: ${b.m.n}</b> — ${money(b.tot)} a year (freight ${money(b.fr)}, in-transit inventory ${money(b.pipe)}, safety stock ${money(b.safety)}${b.spoil?`, spoilage ${money(b.spoil)}`:''}).`));
+    if(cheapFr!==b) out.append(fb('info',`Note: <b>${cheapFr.m.n}</b> has the cheapest freight, but its slow or unreliable transit makes it more expensive in total — the total-cost concept in action.`));
+  }
+  calc();
+ }},
+ {label:'2 · Concept check', build(el){ const c=card('Logistics & supply chains'); el.append(c);
+  quiz(c,[
+   {q:'The total-cost concept says logistics decisions should minimise…',options:['Freight cost only','The sum of all distribution costs, including inventory and lost sales','Warehouse rent only','Packaging cost'],answer:1,explain:'Trade-offs between cost elements are the core idea.'},
+   {q:'Which mode is usually fastest but most expensive per kg?',options:['Ocean','Rail','Air','Pipeline'],answer:2,explain:'Air suits high-value, perishable or urgent goods.'},
+   {q:'Moving a sealed container by ship, then rail, then truck is…',options:['Intermodal transport','Countertrade','Transshipment fraud','Piggyback marketing'],answer:0,explain:'Containers make mode changes fast and secure.'},
+   {q:'Which is part of order processing?',options:['Order entry, handling and delivery scheduling','Advertising','Setting tariffs','Brand naming'],answer:0,explain:'Order entry → order handling → order delivery.'},
+   {q:'A firm that outsources warehousing and transport to a specialist uses a…',options:['3PL (third-party logistics provider)','Keiretsu','Licensing agent','Free trade area'],answer:0,explain:'3PLs provide integrated logistics services.'}
+  ]);
+ }}
+]);
+</script></body></html>

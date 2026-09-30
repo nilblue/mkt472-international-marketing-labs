@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,stat,fb,fmt,money,clear,bars,tabs,quiz}=Lab;
+const app=page({n:5,
+  primer:[
+   "<b>GATT</b> (1947) cut tariffs through negotiating rounds; the <b>World Trade Organization (WTO)</b>, created in 1995, added services, intellectual property (TRIPS) and a binding <b>dispute-settlement</b> system.",
+   "Two core WTO principles: <b>Most-Favoured-Nation (MFN)</b> — a concession to one member applies to all; and <b>National Treatment</b> — imported goods are treated like domestic goods once inside the market.",
+   "Preferential trade agreements are an exception to MFN. The ladder of integration: <b>Free Trade Area</b> (no internal tariffs) → <b>Customs Union</b> (+ common external tariff) → <b>Common Market</b> (+ free movement of labour and capital) → <b>Economic Union</b> (+ harmonised economic policy, often a common currency).",
+   "Agreements create <b>trade creation</b> (cheaper partner goods replace costly domestic output) but can also cause <b>trade diversion</b> (imports shift from the cheapest world supplier to a less efficient partner because of the tariff preference)."
+  ],
+  discussion:["Pakistan has FTAs with China, Sri Lanka and Malaysia. Pick one and argue whether it has mainly created or diverted trade.","Why is a customs union harder to negotiate than a free trade area?","How does the WTO's MFN principle protect small exporting countries?"]
+});
+tabs(app,[
+ {label:'1 · Integration ladder', build(el){
+   const c=card('Tick what the agreement includes'); const out=h('div');
+   const F=[['Tariffs and quotas removed between members'],['Common external tariff toward non-members'],['Free movement of labour and capital'],['Harmonised economic policy / common currency & institutions']];
+   const boxes=F.map(([t])=>h('input',{type:'checkbox',onchange:calc}));
+   c.append(...F.map((f,i)=>h('label',{class:'row',style:{margin:'8px 0',cursor:'pointer'}},boxes[i],f[0])),out); el.append(c);
+   const L=[['No preferential agreement','Trade follows MFN (WTO) terms.',''],['Free Trade Area','e.g. SAFTA, USMCA, Pakistan–China FTA. Members keep their own external tariffs, so rules of origin are needed to stop goods entering via the lowest-tariff member.'],['Customs Union','e.g. Mercosur, EU–Turkey customs union. A common external tariff removes the need for most rules-of-origin checks.'],['Common Market','Adds free movement of people and capital, e.g. the EU single market.'],['Economic Union','Adds common policies and institutions — the euro area is the leading example.']];
+   function calc(){ let lvl=0; for(let i=0;i<4;i++){ if(boxes[i].checked && lvl===i) lvl=i+1; }
+     const skipped=boxes.some((b,i)=>b.checked && i>=lvl);
+     clear(out); out.append(fb(lvl?'good':'info',`<b>Level ${lvl}: ${L[lvl][0]}.</b> ${L[lvl][1]}`));
+     if(skipped) out.append(fb('warn','Some ticked features sit higher on the ladder but a lower rung is missing — each stage builds on the one before it.'));
+   }
+   calc();
+ }},
+ {label:'2 · Trade-diversion simulator', build(el){
+   const c=card('Pakistan imports industrial pumps'); const out=h('div'), chart=h('div');
+   const cw=slider({label:'World’s cheapest supplier cost — non-member (US$)',min:60,max:150,value:100,fmt:v=>'$'+v,oninput:calc});
+   const cp=slider({label:'FTA partner cost (US$)',min:60,max:150,value:112,fmt:v=>'$'+v,oninput:calc});
+   const cd=slider({label:'Domestic producer cost (US$)',min:60,max:200,value:135,fmt:v=>'$'+v,oninput:calc});
+   const t=slider({label:'Import tariff on non-members',min:0,max:60,value:20,fmt:v=>v+'%',oninput:calc});
+   const fta=h('input',{type:'checkbox',checked:true,onchange:calc});
+   c.append(h('div',{class:'grid2'},h('div',null,cw,cp,cd,t,h('label',{class:'row'},fta,'FTA with partner in force (0% tariff on partner)')),h('div',null,chart,out))); el.append(c);
+   function calc(){ if(!t) return; const tr=t.get()/100;
+     const pW=cw.get()*(1+tr), pP=cp.get()*(fta.checked?1:(1+tr)), pD=cd.get();
+     const opts=[{label:'Non-member (incl. tariff)',value:pW},{label:'FTA partner',value:pP},{label:'Domestic producer',value:pD}];
+     const best=opts.reduce((a,b)=>b.value<a.value?b:a);
+     bars(chart,opts.map(o=>({...o,color:o===best?'--c3':'--c6'})),{fmt:v=>money(v,1)});
+     // outcome without FTA
+     const noFta=[cw.get()*(1+tr),cp.get()*(1+tr),pD]; const wasIdx=noFta.indexOf(Math.min(...noFta));
+     const nowIdx=opts.indexOf(best);
+     clear(out);
+     let msg=`Buyers choose the <b>${best.label.toLowerCase()}</b> at ${money(best.value,1)}. `;
+     let kind='info';
+     if(fta.checked){
+       if(wasIdx===2 && nowIdx===1){ msg+='<b>Trade creation:</b> the FTA replaces costly domestic production with cheaper partner imports.'; kind='good'; }
+       else if(wasIdx===0 && nowIdx===1){ msg+=`<b>Trade diversion:</b> imports switch from the more efficient non-member ($${cw.get()}) to the partner ($${cp.get()}). Pakistan loses $${fmt(cw.get()*tr,1)} tariff revenue per unit and pays $${cp.get()-cw.get()} more in real resources.`; kind='bad'; }
+       else msg+='The FTA does not change the sourcing decision here.';
+     } else msg+='Without an FTA every foreign supplier faces the same MFN tariff.';
+     out.append(fb(kind,msg));
+   }
+   calc();
+ }},
+ {label:'3 · WTO quick check', build(el){ const c=card('GATT & WTO principles'); el.append(c);
+   quiz(c,[
+    {q:'Country X gives Brazil a lower tariff on coffee. Under MFN it must…',options:['Give the same rate to all WTO members','Only give it to neighbours','Raise tariffs for others','Do nothing more'],answer:0,explain:'MFN: a trade advantage granted to one member must be extended to all members (FTAs are a permitted exception).'},
+    {q:'Imported cars are charged a higher sales tax than local cars. Which principle is broken?',options:['MFN','National treatment','Rules of origin','Reciprocity'],answer:1,explain:'National treatment forbids discriminating against imports once they have entered the market.'},
+    {q:'Which agreement brought intellectual property into the WTO?',options:['GATS','TRIPS','TRIMS','NAFTA'],answer:1,explain:'TRIPS — Trade-Related Aspects of Intellectual Property Rights.'},
+    {q:'Rules of origin are most needed in a…',options:['Free trade area','Customs union','Common market','Economic union'],answer:0,explain:'Without a common external tariff, FTAs must check where goods really come from.'},
+    {q:'The WTO was established in…',options:['1947','1986','1995','2001'],answer:2,explain:'GATT dates from 1947; the WTO began on 1 January 1995 after the Uruguay Round.'}
+   ]);
+ }}
+]);
+</script></body></html>

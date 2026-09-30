@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,stat,fb,fmt,money,clear,bars,tabs,quiz,classify}=Lab;
+const app=page({n:26,
+  primer:[
+   "Creating global advertising combines the <b>creative strategy</b> (the big idea), the <b>art direction</b> and the <b>copy</b>. Copy must be translated with care — idioms, humour and brand names can misfire. Visuals must respect <b>cultural considerations</b>: religion, gender roles, colours, gestures, modesty and local law.",
+   "<b>Media decisions</b> weigh reach, frequency, cost per thousand (CPM), audience fit and availability. Media landscapes differ: TV still dominates reach in many markets, while social and mobile video grow fastest; some media (e.g. ads for certain products) are restricted by law.",
+   "<b>Public relations (PR)</b> builds goodwill and manages publicity through press releases, events, sponsorships, CSR communication and crisis management. Negative publicity abroad can spread globally within hours.",
+   "<b>Reach</b> = % of the target audience exposed at least once; <b>frequency</b> = average number of exposures among those reached; <b>GRPs</b> = reach × frequency."
+  ],
+  discussion:["Find an example of a translation or cultural blunder in advertising. How could it have been avoided?","How would you split a media budget between TV and digital for a launch in Pakistan vs the UK?","What role should PR play when a global brand faces a boycott call in one country?"]
+});
+const MED=[{n:'TV',cpm:3.0,cap:.85,share:35},{n:'Social media video',cpm:1.5,cap:.55,share:25},{n:'Search & display',cpm:2.5,cap:.45,share:10},{n:'Outdoor / billboards',cpm:1.0,cap:.50,share:15},{n:'Radio',cpm:0.8,cap:.35,share:10},{n:'Print (newspapers)',cpm:6.0,cap:.20,share:5}];
+tabs(app,[
+ {label:'1 · Media planner', build(el){ const c=card('Launch campaign for a new beverage — target: 60 million urban adults'); const chart=h('div'), out=h('div');
+  const bud=slider({label:'Total media budget (US$)',min:50000,max:3000000,step:50000,value:600000,fmt:v=>money(v),oninput:calc});
+  const sl=MED.map(m=>slider({label:`${m.n} (CPM ≈ $${m.cpm}, max reach ${fmt(m.cap*100)}%)`,min:0,max:100,value:m.share,fmt:v=>v+' pts',oninput:calc}));
+  const S=[stat('Net reach'),stat('Average frequency'),stat('GRPs')];
+  c.append(bud,h('div',{class:'grid2'},h('div',null,h('h3',null,'Allocation weights (normalised to 100%)'),sl),h('div',null,chart)),h('div',{class:'grid3'},S),out,h('p',{class:'small muted'},'CPMs and reach ceilings are illustrative. Reach per medium follows a diminishing-returns curve; media are assumed to overlap at random.')); el.append(c);
+  function calc(){ if(!sl[MED.length-1]) return; const pop=60e6, tot=sl.reduce((a,x)=>a+x.get(),0)||1; let notReached=1, imp=0; const data=[];
+    MED.forEach((m,i)=>{ const spend=bud.get()*sl[i].get()/tot, im=spend/m.cpm*1000; imp+=im; const r=m.cap*(1-Math.exp(-im/(pop*m.cap*2.2))); notReached*=(1-r); data.push({label:m.n,value:r*100,color:'--c1'}); });
+    const reach=1-notReached, freq=imp/(reach*pop||1);
+    S[0].set(fmt(reach*100)+'%'); S[1].set(fmt(freq,1)+'×'); S[2].set(fmt(reach*100*freq));
+    bars(chart,data,{max:100,fmt:v=>fmt(v)+'% reach',labelW:160});
+    clear(out); out.append(fb(freq<3?'warn':freq>10?'warn':'good',freq<3?'<b>Frequency is low</b> — many people will see the ad only once or twice. Concentrate the budget in fewer media or fewer weeks.':freq>10?'<b>Frequency is very high</b> — you risk wear-out. Spread spend into media that add new people (higher reach ceilings).':'<b>Healthy balance</b> of reach and frequency (roughly 3–10 exposures) for a launch.')); }
+  calc();
+ }},
+ {label:'2 · Copy & cultural checker', build(el){ const c=card('Is each ad element safe for a Gulf/Pakistan campaign?'); el.append(c);
+  classify(c,{bins:['OK to run','Risky — adapt first'],items:[
+   {text:'A family sharing iftar with the product',bin:0,why:'Culturally resonant during Ramadan when done respectfully.'},
+   {text:'A model eating with her left hand',bin:1,why:'In much of South Asia and the Middle East the left hand is considered unclean for eating.'},
+   {text:'Slogan translated word-for-word from an English pun',bin:1,why:'Puns rarely survive translation; use creative transcreation and back-translation.'},
+   {text:'Beach scene with swimwear models',bin:1,why:'Modesty norms and regulations may prohibit it.'},
+   {text:'Ad claims “better than Brand X” by name',bin:1,why:'Comparative advertising is restricted or banned in some countries.'},
+   {text:'Cricket stars endorsing the product',bin:0,why:'Cricket celebrities have massive appeal in Pakistan.'},
+   {text:'Thumbs-up gesture as the key visual',bin:1,why:'In parts of the Middle East and West Africa it can be offensive.'},
+   {text:'Clear Urdu voice-over with English brand name',bin:0,why:'Common and effective code-mixing for urban audiences.'},
+   {text:'Religious verses printed on the packaging',bin:1,why:'Packaging is discarded; using sacred text can cause offence.'}
+  ]});
+ }},
+ {label:'3 · Concept check', build(el){ const c=card('Media & PR'); el.append(c);
+  quiz(c,[
+   {q:'CPM stands for…',options:['Cost per mille (thousand impressions)','Cost per month','Customers per market','Clicks per minute'],answer:0,explain:'Cost to deliver 1,000 impressions.'},
+   {q:'If 40% of the target sees an ad an average of 5 times, GRPs are…',options:['45','200','8','35'],answer:1,explain:'GRPs = reach × frequency = 40 × 5.'},
+   {q:'Adapting a slogan’s meaning and emotion rather than translating word-for-word is…',options:['Back-translation','Transcreation','Decentring','Localisation of price'],answer:1,explain:'Transcreation keeps the intent, not the literal words.'},
+   {q:'Which is a PR activity?',options:['Buying TV spots','A press conference announcing a factory opening','Coupon drop','Price discount'],answer:1,explain:'PR earns publicity rather than buying media space.'}
+  ]);
+ }}
+]);
+</script></body></html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,fb,fmt,clear,radar,tabs,quiz,classify,stat}=Lab;
+const app=page({n:11,
+  primer:[
+   "A <b>management information system (MIS)</b> gives managers and decision-makers a continuous flow of information about operations; global firms add <b>intranets, ERP, CRM, EDI, RFID</b> and <b>data warehouses</b>.",
+   "<b>Big data</b> refers to extremely large data sets characterised by <b>volume, velocity and variety</b> (often also veracity and value) — e.g. social media, mobile, point-of-sale and sensor data — analysed to find patterns in consumer behaviour.",
+   "Sources of market information: <b>human sources</b> (executives, distributors, customers, suppliers, government officials), <b>documentary sources</b> (reports, databases, trade statistics), <b>direct perception</b> (visiting the market) and <b>the internet</b>.",
+   "Information-gathering modes: <b>surveillance</b> (viewing — general exposure; monitoring — tracking a specific issue) and <b>search</b> (investigation — limited, informal; research — formal, organised).",
+   "Secondary data must be checked for <b>currency, relevance, authority, accuracy and purpose</b> — especially across countries where definitions and data quality differ."
+  ],
+  discussion:["List three free secondary sources a Pakistani exporter could use to research a new export market (e.g. ITC Trade Map, UN Comtrade, World Bank data, TDAP, SBP).","Why can two countries’ statistics on the ‘same’ thing be hard to compare?","Give an example of big-data analytics changing a marketing decision."]
+});
+tabs(app,[
+ {label:'1 · Sort the sources', build(el){ const c=card('Classify each information source'); el.append(c);
+  classify(c,{bins:['Primary data','Secondary — internal','Secondary — external'],items:[
+   {text:'Focus group with shoppers in Riyadh',bin:0,why:'Collected first-hand for this purpose.'},{text:'Survey of Kenyan retailers',bin:0,why:'Original data collection.'},{text:'Observation of shelf prices in a Dubai hypermarket',bin:0,why:'Direct perception of the market.'},
+   {text:'Company sales records by country',bin:1,why:'Existing data from inside the firm.'},{text:'CRM data on customer complaints',bin:1,why:'Internal database.'},{text:'Distributor sales reports',bin:1,why:'Reports flowing into the firm’s MIS.'},
+   {text:'UN Comtrade trade statistics',bin:2,why:'Published by an international organisation.'},{text:'World Bank World Development Indicators',bin:2,why:'Published macro data.'},{text:'State Bank of Pakistan annual report',bin:2,why:'Government/central-bank publication.'},{text:'ITC Trade Map',bin:2,why:'Online trade-flow database.'}
+  ]});
+ }},
+ {label:'2 · Credibility scorer', build(el){ const c=card('Rate a secondary source before you rely on it'); const r=h('div'), out=h('div');
+  const name=h('input',{type:'text',value:'Market-size figure from a blog post',oninput:calc,'aria-label':'Source name'});
+  const C=[['Currency — how recent is it?',2],['Relevance — same product, country & definition?',3],['Authority — who published it?',2],['Accuracy — method explained, verifiable?',2],['Purpose — neutral, or selling something?',2],['Comparability across countries',2]].map(([l,v])=>slider({label:l,min:0,max:5,value:v,oninput:calc}));
+  const sc=stat('Credibility score');
+  c.append(h('div',{class:'ctl'},h('label',null,'Source being evaluated'),name),h('div',{class:'grid2'},h('div',null,C),h('div',null,r,sc,out))); el.append(c);
+  function calc(){ if(!C[5]) return; const v=C.map(x=>x.get()); const t=v.reduce((a,b)=>a+b,0)/30*100; sc.set(fmt(t)+'/100');
+    radar(r,['Currency','Relevance','Authority','Accuracy','Purpose','Comparability'],[{name:name.value,values:v}],{max:5,size:360});
+    const weakest=['currency','relevance','authority','accuracy','purpose','comparability'][v.indexOf(Math.min(...v))];
+    clear(out); out.append(fb(t>=70?'good':t>=45?'warn':'bad',t>=70?'Reliable enough to use — cite it and note its date.':t>=45?`Use with caution. Weakest point: <b>${weakest}</b>. Triangulate with a second source.`:`Do not rely on this source. Weakest point: <b>${weakest}</b>. Look for official or primary data.`));
+  }
+  calc();
+ }},
+ {label:'3 · Concept check', build(el){ const c=card('IT, MIS & big data'); el.append(c);
+  quiz(c,[
+   {q:'Tracking a competitor’s price moves every week is which information mode?',options:['Viewing','Monitoring','Investigation','Research'],answer:1,explain:'Monitoring is deliberate, focused surveillance of a specific issue.'},
+   {q:'The three classic “Vs” of big data are…',options:['Value, vision, variety','Volume, velocity, variety','Validity, volume, visibility','Velocity, vision, value'],answer:1,explain:'Volume (size), velocity (speed) and variety (types of data).'},
+   {q:'Which system lets retailers and suppliers exchange orders and invoices electronically?',options:['EDI','GDP','ERP only','CRM'],answer:0,explain:'Electronic Data Interchange.'},
+   {q:'The most important source of information for executives, according to research on global scanning, is usually…',options:['Human sources (colleagues, distributors, customers)','Television','Textbooks','Only formal surveys'],answer:0,explain:'Studies found most external information comes from human sources.'},
+   {q:'RFID tags are mainly used to…',options:['Design ads','Track products through the supply chain','Set tariffs','Translate websites'],answer:1,explain:'Radio-frequency identification tracks items and pallets in real time.'}
+  ]);
+ }}
+]);
+</script></body></html>

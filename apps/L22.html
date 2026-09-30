@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,stat,fb,fmt,money,clear,bars,tabs,classify}=Lab;
+const app=page({n:22,
+  primer:[
+   "Global pricing policy alternatives: <b>ethnocentric</b> (one world price, customer pays freight and duty), <b>polycentric</b> (local managers set prices freely), and <b>geocentric</b> (local prices within a coordinated corporate policy to prevent arbitrage).",
+   "<b>Gray markets (parallel imports)</b>: genuine branded goods bought cheaply in one market and resold, outside authorised channels, in a higher-priced market. They thrive when the <b>price gap exceeds the cost of moving the goods</b>.",
+   "<b>Dumping</b>: selling in an export market below the price in the home market (or below cost). The WTO allows <b>anti-dumping duties</b> when dumping causes material injury to the importing country’s industry. <b>Price fixing</b> — competitors colluding on prices — is illegal in most jurisdictions.",
+   "<b>Transfer pricing</b>: prices charged between units of the same company. Tax authorities require <b>arm’s-length</b> prices (what unrelated parties would charge).",
+   "<b>Countertrade</b>: payment wholly or partly in goods — <b>barter</b>, <b>counterpurchase</b>, <b>offset</b>, <b>compensation (buyback)</b> and <b>switch trading</b>."
+  ],
+  discussion:["Why are gray markets common for smartphones and cosmetics in Pakistan?","Is a low export price always dumping? What evidence would a WTO panel look for?","When is countertrade attractive to a government with scarce foreign exchange?"]
+});
+tabs(app,[
+ {label:'1 · Gray market simulator', build(el){ const c=card('A branded perfume is priced differently in two markets'); const chart=h('div'), out=h('div');
+  const pa=slider({label:'Official price in Market A — e.g. Dubai (US$)',min:20,max:150,value:60,fmt:v=>'$'+v,oninput:calc});
+  const pb=slider({label:'Official price in Market B — e.g. Karachi (US$)',min:20,max:200,value:95,fmt:v=>'$'+v,oninput:calc});
+  const tc=slider({label:'Gray trader’s transport, duty & handling per unit',min:0,max:60,value:18,fmt:v=>'$'+v,oninput:calc});
+  const mg=slider({label:'Minimum profit a gray trader needs per unit',min:0,max:30,value:8,fmt:v=>'$'+v,oninput:calc});
+  const S=[stat('Price gap'),stat('Arbitrage cost'),stat('Gray-market profit per unit')];
+  c.append(h('div',{class:'grid2'},h('div',null,pa,pb,tc,mg),h('div',null,chart)),h('div',{class:'grid3'},S),out); el.append(c);
+  function calc(){ if(!mg) return; const gap=pb.get()-pa.get(), cost=tc.get(), prof=gap-cost;
+    S[0].set(money(gap)); S[1].set(money(cost)); S[2].set(money(prof));
+    const grayPrice=pa.get()+cost+mg.get();
+    bars(chart,[{label:'Official price A',value:pa.get()},{label:'Gray landed cost in B',value:pa.get()+cost,color:'--c2'},{label:'Gray selling price in B',value:grayPrice,color:'--c4'},{label:'Official price B',value:pb.get(),color:'--c5'}],{fmt:x=>money(x)});
+    clear(out);
+    if(prof>mg.get()) out.append(fb('bad',`<b>Gray imports flow.</b> Traders can undercut authorised dealers in B by up to ${money(pb.get()-grayPrice)} and still earn their margin. Authorised dealers lose sales and may stop investing in the brand. Remedies: narrow the price gap, differentiate products/warranties by market, restrict distributor contracts, or use legal action where law allows.`));
+    else out.append(fb('good',`<b>No profitable arbitrage.</b> The ${money(gap)} gap is smaller than transport, duty and the trader’s required margin (${money(cost+mg.get())}). A geocentric pricing policy aims to keep gaps inside this corridor.`));
+  }
+  calc();
+ }},
+ {label:'2 · Transfer pricing', build(el){ const c=card('Parent (home country) sells components to its foreign subsidiary'); const chart=h('div'), out=h('div');
+  const cost=slider({label:'Parent’s production cost per unit',min:10,max:100,value:40,fmt:v=>'$'+v,oninput:calc});
+  const tp=slider({label:'Transfer price charged to subsidiary',min:10,max:150,value:60,fmt:v=>'$'+v,oninput:calc});
+  const rp=slider({label:'Subsidiary’s selling price to customers',min:20,max:200,value:100,fmt:v=>'$'+v,oninput:calc});
+  const th=slider({label:'Home corporate tax rate',min:0,max:45,value:29,fmt:v=>v+'%',oninput:calc});
+  const ts=slider({label:'Host corporate tax rate',min:0,max:45,value:15,fmt:v=>v+'%',oninput:calc});
+  const du=slider({label:'Host import duty on transfer price',min:0,max:40,value:10,fmt:v=>v+'%',oninput:calc});
+  const arm=slider({label:'Arm’s-length price (what an independent buyer would pay)',min:10,max:150,value:65,fmt:v=>'$'+v,oninput:calc});
+  const S=[stat('Tax + duty paid'),stat('Group after-tax profit'),stat('Deviation from arm’s length')];
+  c.append(h('div',{class:'grid2'},h('div',null,cost,tp,rp,arm),h('div',null,th,ts,du)),h('div',{class:'grid3'},S),chart,out); el.append(c);
+  function calc(){ if(!arm) return; const d=tp.get()*du.get()/100, pP=tp.get()-cost.get(), pS=rp.get()-tp.get()-d;
+    const tP=Math.max(0,pP)*th.get()/100, tS=Math.max(0,pS)*ts.get()/100, tot=tP+tS+d, net=pP+pS-tP-tS;
+    const dev=(tp.get()-arm.get())/arm.get();
+    S[0].set(money(tot,2)); S[1].set(money(net,2)); S[2].set((dev>=0?'+':'')+fmt(dev*100)+'%');
+    bars(chart,[{label:'Parent profit',value:pP},{label:'Subsidiary profit',value:pS},{label:'Home tax',value:tP,color:'--c5'},{label:'Host tax',value:tS,color:'--c5'},{label:'Import duty',value:d,color:'--c2'},{label:'Group net profit',value:net,color:'--c3'}],{fmt:x=>money(x,2)});
+    clear(out); out.append(fb(Math.abs(dev)>0.15?'bad':'good',Math.abs(dev)>0.15?`<b>Audit risk.</b> The transfer price is ${fmt(Math.abs(dev)*100)}% ${dev>0?'above':'below'} arm’s length. Tax authorities in either country can adjust it, charge back taxes and penalties (OECD transfer-pricing guidelines).`:'<b>Within an arm’s-length range.</b> Profits are allocated in a way tax authorities are likely to accept.'));
+    out.append(fb('info','Try it: when the host tax rate is lower, a <i>lower</i> transfer price shifts profit to the subsidiary — but higher import duty and arm’s-length rules limit that game.'));
+  }
+  calc();
+ }},
+ {label:'3 · Dumping & countertrade', build(el){ const c=card('Dumping check'); const out=h('div');
+  const nv=slider({label:'Normal value (home-market price) of steel sheet, US$/ton',min:300,max:1200,value:800,fmt:v=>'$'+v,oninput:calc});
+  const ep=slider({label:'Export price to Pakistan, US$/ton',min:300,max:1200,value:620,fmt:v=>'$'+v,oninput:calc});
+  const inj=h('input',{type:'checkbox',checked:true,onchange:calc});
+  c.append(h('div',{class:'grid2'},h('div',null,nv,ep,h('label',{class:'row small'},inj,'Local industry shows material injury (lost sales, falling prices, layoffs)')),out)); el.append(c);
+  function calc(){ if(!ep) return; const m=(nv.get()-ep.get())/ep.get(); clear(out);
+    if(m<=0.02) out.append(fb('good',`Export price is not below normal value (margin ${fmt(m*100,1)}%). <b>No dumping.</b>`));
+    else out.append(fb(inj.checked?'bad':'warn',`<b>Dumping margin: ${fmt(m*100,1)}%</b> of export price. ${inj.checked?`With material injury, Pakistan’s National Tariff Commission could impose an anti-dumping duty of up to about ${fmt(m*100,1)}%.`:'Without material injury, WTO rules do not permit anti-dumping duties.'}`)); }
+  calc();
+  const c2=card('Classify the countertrade deals'); el.append(c2);
+  classify(c2,{bins:['Barter','Counterpurchase','Offset','Compensation (buyback)','Switch trading'],items:[
+   {text:'Rice exchanged directly for fertiliser, no money changes hands',bin:0,why:'Direct goods-for-goods exchange.'},
+   {text:'Seller of trucks agrees to buy local textiles worth 50% of the deal within two years',bin:1,why:'Two parallel cash contracts, the seller commits to buy.'},
+   {text:'A fighter-jet maker agrees to source components locally and invest in the buyer country',bin:2,why:'Offsets are common in defence and aircraft deals.'},
+   {text:'A firm builds a fertiliser plant and is paid with part of the plant’s output',bin:3,why:'Buyback: paid in products made by the supplied equipment.'},
+   {text:'A specialist sells unwanted barter credits to a third party for cash',bin:4,why:'Switch traders convert clearing credits or goods into cash.'}
+  ]});
+ }}
+]);
+</script></body></html>

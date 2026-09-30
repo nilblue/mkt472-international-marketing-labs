@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,s,page,card,slider,fb,fmt,clear,cssVar,tabs,quiz}=Lab;
+const app=page({n:3,
+  primer:[
+   "Economic systems can be classified on two dimensions: <b>how resources are allocated</b> (by the market or by a central command plan) and <b>who owns resources</b> (private or state).",
+   "This gives four types: <b>Market capitalism</b> (market allocation, private ownership), <b>Centrally planned socialism</b> (command allocation, state ownership), <b>Centrally planned capitalism</b> (command allocation, private ownership — rare, e.g. wartime economies) and <b>Market socialism</b> (market allocation within substantial state ownership, e.g. China's reforms).",
+   "In practice every economy is <b>mixed</b>. Marketers care because the system shapes pricing freedom, competition, access to distribution and the risk of state intervention.",
+   "The world economy has shifted strongly toward market allocation since 1990, but state-owned enterprises remain important in many emerging markets."
+  ],
+  discussion:["Where would you place Pakistan on the grid, and which sectors pull it toward state ownership?","How would pricing and distribution decisions differ for a foreign firm entering a market-socialist economy vs a market-capitalist one?","Why is centrally planned capitalism rare in peacetime?"]
+});
+const Q=['Market capitalism','Market socialism','Centrally planned capitalism','Centrally planned socialism'];
+function quadOf(market,state){ return market>=50 ? (state<50?0:1) : (state<50?2:3); }
+function grid(el, pts){
+  clear(el); const W=520,H=420,m=60;
+  const X=v=>m+(100-v)/100*(W-m-20), Y=v=>20+v/100*(H-m-20); // left = market (100), right = command; top = private (0)
+  const sv=s('svg',{viewBox:`0 0 ${W} ${H}`,width:'100%',style:'max-width:560px;display:block;margin:auto',role:'img'});
+  const cols=['--c3','--c4','--c2','--c5'];
+  const quads=[[X(100),Y(0),'Market capitalism',0],[X(100),Y(50),'Market socialism',1],[X(50),Y(0),'Centrally planned capitalism',2],[X(50),Y(50),'Centrally planned socialism',3]];
+  quads.forEach(([x,y,t,i])=>{ sv.append(s('rect',{x,y,width:(W-m-20)/2,height:(H-m-20)/2,fill:cssVar(cols[i]),'fill-opacity':.12,stroke:cssVar('--border')}));
+    sv.append(s('text',{x:x+(W-m-20)/4,y:y+22,'text-anchor':'middle','font-size':12,'font-weight':700},t)); });
+  sv.append(s('text',{x:m+(W-m-20)/2,y:H-18,'text-anchor':'middle','font-size':12,fill:cssVar('--muted')},'Resource allocation:  ← Market          Command →'));
+  sv.append(s('text',{x:16,y:20+(H-m-20)/2,'text-anchor':'middle','font-size':12,fill:cssVar('--muted'),transform:`rotate(-90 16 ${20+(H-m-20)/2})`},'Ownership:  ← Private     State →'));
+  pts.forEach(p=>{ sv.append(s('circle',{cx:X(p.market),cy:Y(p.state),r:7,fill:cssVar(p.color||'--c1'),stroke:cssVar('--surface'),'stroke-width':2}));
+    sv.append(s('text',{x:X(p.market)+10,y:Y(p.state)+4,'font-size':12,'font-weight':600},p.label)); });
+  el.append(sv);
+}
+tabs(app,[
+ {label:'1 · Build an economy', build(el){
+   const c=card('Move the sliders to design an economy'); const g=h('div'), out=h('div');
+   const mk=slider({label:'Share of prices & output decided by markets',min:0,max:100,value:75,fmt:v=>v+'%',oninput:calc});
+   const st=slider({label:'Share of productive assets owned by the state',min:0,max:100,value:20,fmt:v=>v+'%',oninput:calc});
+   c.append(h('div',{class:'grid2'},h('div',null,mk,st,out),g)); el.append(c);
+   const impl=['Free pricing, open competition and private distribution. Marketers have wide freedom; regulation focuses on consumer protection and competition law.','Markets set many prices, but state-owned enterprises dominate key sectors. Expect joint-venture requirements and state customers or partners.','Private firms exist but the government directs output and prices. Marketing is constrained; relationships with planners matter.','The state plans output and owns most enterprises. Little room for independent marketing; trade often goes through state agencies.'];
+   function calc(){ const q=quadOf(mk.get(),st.get()); grid(g,[{market:mk.get(),state:st.get(),label:'Your economy',color:'--accent2'}]);
+     clear(out); out.append(fb('info',`<b>${Q[q]}.</b> ${impl[q]}`)); }
+   calc();
+ }},
+ {label:'2 · Place the economies', build(el){
+   const c=card('Where does each economy fit?');
+   const cases=[
+    {n:'United States',q:0,why:'Market allocation with private ownership dominates.'},
+    {n:'United Kingdom',q:0,why:'Market capitalism after 1980s privatization.'},
+    {n:'Cuba',q:3,why:'State ownership and central planning, with limited reforms.'},
+    {n:'North Korea',q:3,why:'The clearest remaining centrally planned socialist economy.'},
+    {n:'China (reform era)',q:1,why:'Markets set most prices, yet state-owned enterprises hold key sectors — often termed market socialism.'},
+    {n:'Vietnam (Đổi Mới)',q:1,why:'Market reforms within a socialist state-led system.'},
+    {n:'USA during World War II',q:2,why:'Government directed output of privately owned factories.'},
+    {n:'Former Soviet Union',q:3,why:'Gosplan central planning with state ownership.'}
+   ];
+   const g=h('div'); const placed=[]; let i=0; const out=h('div'), ask=h('div');
+   function next(){ clear(ask); if(i>=cases.length){ ask.append(fb('good',`<b>Done — ${placed.filter(p=>p.ok).length} of ${cases.length} correct.</b>`)); return; }
+     ask.append(h('h3',null,'Where would you place: '+cases[i].n+'?'), Q.map((q,qi)=>h('button',{class:'opt',onclick:()=>{ const cs=cases[i]; const ok=qi===cs.q;
+       const pos=[[80,20],[80,75],[25,20],[25,78]][cs.q]; placed.push({market:pos[0]+(Math.random()*14-7),state:pos[1]+(Math.random()*14-7),label:cs.n,color:ok?'--c3':'--c5',ok});
+       grid(g,placed); clear(out); out.append(fb(ok?'good':'bad',(ok?'<b>Correct.</b> ':`<b>Better fit: ${Q[cs.q]}.</b> `)+cs.why)); i++; next(); }},q))); }
+   c.append(h('div',{class:'grid2'},h('div',null,ask,out),g)); el.append(c); grid(g,[]); next();
+ }}
+]);
+</script></body></html>

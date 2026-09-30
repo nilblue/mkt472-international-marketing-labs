@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,fb,fmt,clear,tabs,quiz,weighted}=Lab;
+const app=page({n:18,
+  primer:[
+   "A <b>global strategic partnership (GSP)</b> or alliance: participants <b>remain independent</b> after forming it, <b>share the benefits and control</b>, and make <b>ongoing contributions</b> in technology, products or other strategic areas. Examples include airline alliances and R&D partnerships.",
+   "Success factors: a clear mission, a strategy that fits both partners, careful governance, a shared culture of learning, and trust. Risk: the partner learns your core skills faster than you learn theirs.",
+   "<b>Cooperative strategies in Asia</b>: Japan’s <b>keiretsu</b> (inter-company networks linked by cross-shareholdings and banks, e.g. Mitsubishi) and South Korea’s <b>chaebol</b> (family-controlled conglomerates, e.g. Samsung, Hyundai). China’s <b>guanxi</b> relationships also shape partnerships.",
+   "<b>Market expansion strategy</b> combines <b>country</b> concentration or diversification with <b>market-segment</b> concentration or diversification — four options for how fast and how widely to expand."
+  ],
+  discussion:["Why do airlines form alliances rather than merge across borders?","What can a Pakistani firm learn from keiretsu-style supplier relationships?","Which expansion strategy suits a small Pakistani software firm, and which suits a large conglomerate?"]
+});
+tabs(app,[
+ {label:'1 · Partner fit scorer', build(el){ const c=card('A Pakistani dairy company seeks a foreign alliance partner'); el.append(c);
+  c.append(h('p',{class:'small muted'},'Three hypothetical partners are scored 1–5 on each criterion. Set how much each criterion matters to you.'));
+  weighted(c,{criteria:[{name:'Complementary capabilities',weight:8},{name:'Strategic goal compatibility',weight:7},{name:'Cultural fit & trust',weight:6},{name:'Financial strength',weight:5},{name:'Low risk of losing core know-how',weight:6},{name:'Access to new markets',weight:5}],
+   options:[{name:'Global dairy multinational',scores:[5,3,2,5,2,5]},{name:'Regional Gulf distributor',scores:[3,4,4,3,4,4]},{name:'European tech & packaging SME',scores:[4,4,4,2,4,2]}],
+   explain:n=>({'Global dairy multinational':'Powerful, but it may dominate the alliance and absorb your know-how.','Regional Gulf distributor':'Balanced fit with strong trust and market access in the GCC.','European tech & packaging SME':'Complements your operations with technology at low strategic risk.'})[n]});
+ }},
+ {label:'2 · Expansion strategy matrix', build(el){ const c=card('How widely should you expand?'); const out=h('div'), grid=h('div');
+  const nc=slider({label:'Number of countries targeted',min:1,max:40,value:3,oninput:calc});
+  const ns=slider({label:'Number of market segments targeted',min:1,max:10,value:1,oninput:calc});
+  c.append(h('div',{class:'grid2'},h('div',null,nc,ns,out),grid)); el.append(c);
+  const Q=[['Country concentration + segment concentration','Few segments in few countries — typical for a small firm starting out. Low cost, deep knowledge, limited scale.'],['Country diversification + segment concentration','A global niche: one segment served in many countries (e.g. specialist sports goods from Sialkot). Scale economies from a focused product.'],['Country concentration + segment diversification','Many segments in a few countries — a strong regional multi-product player.'],['Country diversification + segment diversification','Many segments in many countries — the global, multi-business corporation (e.g. Unilever, Nestlé). Needs large resources.']];
+  function calc(){ if(!ns) return; const cd=nc.get()>5, sd=ns.get()>2; const q=(cd?1:0)+(sd?2:0);
+    clear(grid); const cell=(i,t)=>h('div',{class:'stat',style:{border:i===q?'2px solid var(--accent)':'2px solid transparent',minHeight:'92px'}},h('div',{class:'l'},t),i===q?h('div',{class:'v',style:{fontSize:'16px'}},'← you are here'):null);
+    grid.append(h('div',{class:'small muted',style:{textAlign:'center'}},'Countries: concentrated (≤5) | diversified (>5)'),h('div',{class:'grid2',style:{gap:'8px'}},cell(2,'Few countries, many segments'),cell(3,'Many countries, many segments'),cell(0,'Few countries, few segments'),cell(1,'Many countries, few segments')),h('div',{class:'small muted',style:{textAlign:'center'}},'Top row: segments diversified (>2) · Bottom row: concentrated (≤2)'));
+    clear(out); out.append(fb('info',`<b>${Q[q][0]}.</b> ${Q[q][1]}`)); }
+  calc();
+ }},
+ {label:'3 · Concept check', build(el){ const c=card('Alliances & Asian cooperative strategies'); el.append(c);
+  quiz(c,[
+   {q:'Which is NOT a defining feature of a global strategic partnership?',options:['Partners remain independent','Partners share benefits and control','Partners contribute continuously','One partner fully acquires the other'],answer:3,explain:'An acquisition ends independence, so it is not an alliance.'},
+   {q:'A Japanese network of firms linked by cross-shareholdings around a main bank is a…',options:['Chaebol','Keiretsu','Guanxi','Maquiladora'],answer:1,explain:'Keiretsu, e.g. Mitsubishi, Mitsui, Sumitomo groups.'},
+   {q:'Samsung and Hyundai are examples of…',options:['Keiretsu','Chaebol','State-owned enterprises','Cooperatives'],answer:1,explain:'Korean family-controlled conglomerates.'},
+   {q:'The biggest strategic risk in an alliance with a stronger partner is…',options:['Too much trust','The partner learning and absorbing your core competencies','Higher local knowledge','Lower costs'],answer:1,explain:'Alliances are also a race to learn.'},
+   {q:'Serving one niche segment in 40 countries is…',options:['Country & segment concentration','Country diversification with segment concentration','Country concentration with segment diversification','Full diversification'],answer:1,explain:'A global niche strategy.'}
+  ]);
+ }}
+]);
+</script></body></html>

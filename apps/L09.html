@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MKT472 Lab</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><script src="../assets/lib.js"></script>
+<script>
+const {h,page,card,slider,stat,fb,fmt,clear,bars,tabs,quiz,selectBox}=Lab;
+const app=page({n:9,
+  primer:[
+   "The <b>political environment</b> consists of governmental institutions, parties and organisations through which a nation exercises <b>sovereignty</b> — supreme and independent political authority over its territory.",
+   "<b>Political risk</b> is the risk of a change in the political environment or government policy that hurts a company. Its sharpest forms are <b>confiscation</b> (seizure without compensation), <b>expropriation</b> (seizure with some compensation) and <b>domestication</b> (forced transfer of ownership/management to locals). Softer forms include currency controls, import restrictions, price controls and sudden <b>tax</b> changes.",
+   "<b>Taxes</b> matter because governments use them to raise revenue, protect industries and influence behaviour; tax treaties reduce double taxation.",
+   "Legal foundations: <b>common law</b> (precedent — UK, USA, Pakistan, India), <b>civil/code law</b> (comprehensive codes — France, Germany, most of Latin America) and <b>Islamic law (Shari’ah)</b>. Pakistan’s system is common-law based with Islamic provisions. International law is built from treaties, conventions and custom (e.g. the Paris Convention, the CISG)."
+  ],
+  discussion:["Which three political-risk factors would matter most for a foreign automaker investing in Pakistan?","How can a firm reduce political risk without avoiding the country entirely?","Why might a common-law contract be longer than a civil-law contract for the same deal?"]
+});
+const F=['Government instability / regime change','Expropriation or confiscation risk','Weak contract enforcement & courts','Sudden tax & regulatory changes','Currency controls / profit repatriation limits','Sanctions & geopolitical tension','Civil unrest, terrorism & security','Corruption & bribery pressure'];
+const SHORT=['Instability','Expropriation','Contract enforcement','Tax & regulation','Currency controls','Sanctions','Unrest & security','Corruption'];
+const MIT=['Scenario planning; diversify across markets; build broad local stakeholder support.','Political-risk insurance (e.g. MIGA, national export credit agencies); invest through a country with a bilateral investment treaty; local JV partner.','International arbitration clauses (e.g. ICC, LCIA, ICSID); letters of credit; smaller exposure.','Stability agreements, tax treaties, local legal counsel; transfer-pricing documentation.','Local sourcing to create local-currency costs; countertrade; hedging; reinvest profits locally.','Screen partners against sanctions lists; supply-chain alternatives; compliance programme.','Security planning, insurance, local management, lower fixed assets.','Clear anti-bribery policy; comply with FCPA / UK Bribery Act; use vetted agents.'];
+const PRE={'Stable high-income democracy':[2,1,2,3,1,2,2,2],'Emerging market in an election year':[6,4,6,7,6,4,5,6],'Fragile, conflict-affected state':[9,8,9,8,9,7,9,8]};
+tabs(app,[
+ {label:'1 · Political risk scorecard', build(el){ const c=card('Rate the country (0 = no risk, 10 = extreme)'); const chart=h('div'), out=h('div');
+   const sc=F.map(f=>slider({label:f,min:0,max:10,value:5,oninput:calc}));
+   const w=F.map(f=>slider({label:'weight',min:0,max:5,value:3,oninput:calc}));
+   const pre=selectBox({label:'Load a preset profile',options:[['','— choose —'],...Object.keys(PRE).map(k=>[k,k])],value:'',onchange:v=>{ if(PRE[v]) PRE[v].forEach((x,i)=>sc[i].set(x)); }});
+   const idx=stat('Political risk index (0–100)');
+   const rows=F.map((f,i)=>h('div',{class:'grid2',style:{alignItems:'end',gap:'10px'}},sc[i],w[i]));
+   c.append(pre,h('p',{class:'small muted'},'Left slider = risk level, right slider = how much that factor matters to your business (0–5).'),...rows,h('div',{class:'grid2'},idx,h('div')),chart,out); el.append(c);
+   function calc(){ if(w.length<F.length||!w[F.length-1]) return; let tw=0,t=0; sc.forEach((s,i)=>{t+=s.get()*w[i].get(); tw+=w[i].get();});
+     const v=tw? t/tw*10:0; idx.set(fmt(v));
+     bars(chart,F.map((f,i)=>({label:SHORT[i],value:sc[i].get()*w[i].get(),color:sc[i].get()>=7?'--c5':sc[i].get()>=4?'--c2':'--c3'})),{max:50,labelW:200,fmt:v=>fmt(v)});
+     const top=F.map((f,i)=>({i,v:sc[i].get()*w[i].get()})).sort((a,b)=>b.v-a.v).slice(0,3);
+     clear(out); const band=v<30?['good','Low risk — standard entry modes, including wholly owned investment, are feasible.']:v<60?['warn','Moderate risk — prefer lower-commitment or shared-risk entry (exporting, licensing, JV) and insure investments.']:['bad','High risk — minimise fixed investment; consider exporting via agents, or waiting.'];
+     out.append(fb(band[0],`<b>Index ${fmt(v)}/100.</b> ${band[1]}`), h('h3',{style:{marginTop:'12px'}},'Mitigation for your top risks'), h('ul',null,top.map(x=>h('li',null,h('b',null,F[x.i]+': '),MIT[x.i]))));
+   }
+   calc();
+ }},
+ {label:'2 · Concept check', build(el){ const c=card('Political & legal foundations'); el.append(c);
+   quiz(c,[
+    {q:'A government seizes a foreign mine and pays partial compensation. This is…',options:['Confiscation','Expropriation','Domestication','Nationalist boycott'],answer:1,explain:'Expropriation involves some compensation; confiscation involves none.'},
+    {q:'A law forces foreign firms to sell 51% of equity to local investors over five years. This is…',options:['Confiscation','Expropriation','Domestication','Dumping'],answer:2,explain:'Domestication gradually transfers ownership/control to nationals.'},
+    {q:'Pakistan’s legal system is primarily based on…',options:['Civil (code) law','Common law with Islamic provisions','Socialist law','Customary law only'],answer:1,explain:'It inherited English common law, and the Constitution incorporates Islamic principles.'},
+    {q:'Which law system relies most on judicial precedent?',options:['Civil law','Common law','Islamic law','Code law'],answer:1,explain:'Common law builds on past court decisions (precedent).'},
+    {q:'Sovereignty means…',options:['A country’s membership in the WTO','Supreme and independent political authority','Free trade','A currency union'],answer:1,explain:'Nations may give up some sovereignty when they join trade blocs or treaties.'},
+    {q:'Which is a practical way to reduce expropriation risk?',options:['Invest only with borrowed local money and a local partner, and buy political-risk insurance','Ignore the host government','Repatriate no profits ever','Avoid all contracts'],answer:0,explain:'Local partners, local financing and insurance (e.g. MIGA) all reduce exposure.'}
+   ]);
+ }}
+]);
+</script></body></html>
