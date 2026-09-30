@@ -1,6 +1,10 @@
+<p align="center"><img src="assets/cui-logo.png" alt="COMSATS University Islamabad" width="120"></p>
+
+<h2 align="center">COMSATS University Islamabad, Wah Campus</h2>
+
 # MKT472 International Marketing Labs
 
-Interactive apps and simulations for **MKT472 International Marketing** (BS-BA / BS-BAF), Department of Management Sciences, COMSATS University Islamabad, Wah Campus. Instructor: **Abid Naeem**.
+Interactive apps and simulations for **MKT472 International Marketing** (BS-BA / BS-BAF), Management Sciences Department, COMSATS University Islamabad, Wah Campus. Instructor: **Abid Naeem**.
 
 There is one lab for each of the 32 lectures in the course outline. Each lab has a short concept primer, an interactive app (simulation, calculator, decision tool, role-play, classifier or quiz) and discussion questions mapped to the course CLOs.
 
@@ -54,6 +58,7 @@ There is one lab for each of the 32 lectures in the course outline. Each lab has
 ```
 index.html          Hub page listing all 32 labs, searchable
 assets/style.css    Shared styles (light and dark mode, mobile-friendly)
+assets/cui-logo.png COMSATS University Islamabad logo
 assets/lib.js       Shared library: page layout, sliders, charts, quiz/sort/sequence/scenario engines
 apps/L01–L32.html   One self-contained lab per lecture
 ```
@@ -65,3 +70,7 @@ Plain HTML, CSS and JavaScript with no build step and no external dependencies.
 Figures such as trade-bloc details, Hofstede scores, World Bank income thresholds, CPMs, freight rates and segment sizes are simplified or illustrative, for teaching only. Check the official sources before using them in assignments or research.
 
 Primary text: Cateora, Gilly & Graham, *International Marketing*.
+
+---
+
+<p align="center"><b>Management Sciences Department.</b> Made by Abid Naeem.</p>
