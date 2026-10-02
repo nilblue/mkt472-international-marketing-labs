@@ -4,9 +4,15 @@
 
 # MKT472 International Marketing Labs
 
-Interactive apps and simulations for **MKT472 International Marketing** (BS-BA / BS-BAF), Management Sciences Department, COMSATS University Islamabad, Wah Campus. Instructor: **Abid Naeem**.
+interactive learning exercises, or interactive worksheets.
+Inside that, the tabs fall into five types:
 
-There is one lab for each of the 32 lectures in the course outline. Each lab has a short concept primer, an interactive app (simulation, calculator, decision tool, role-play, classifier or quiz) and discussion questions mapped to the course CLOs.
+What-if calculators. These are slider tools that apply a fixed formula, such as the customer value calculator (L01), the trade-diversion calculator (L05) and the landed cost calculator (L15). They're calculators, not simulations, because nothing changes over time and no rival or market responds to you.
+Sorting exercises. You drag items into bins, for example global vs multidomestic industries (L01) or "classify the cases" (L20). These are quizzes in a different format.
+Dilemma scenarios. You choose an option and it moves scores like Profit, Reputation or People/Planet (L10 legal dilemmas, L32 CSR). These come closest to simulations, but each is a single decision, not a game played over several rounds.
+Scorers and selectors. These are checklist-style decision aids, like the standardize-or-adapt scorer, the strategy selector and the agency selector (L20, L25).
+Concept checks. These are plain multiple-choice quizzes.
+.
 
 **Open the labs:** enable GitHub Pages (Settings → Pages → Deploy from branch → `main` / root), then visit `https://<username>.github.io/<repo-name>/`. You can also download the repo and open `index.html` in any browser; no install or internet connection is needed.
 
